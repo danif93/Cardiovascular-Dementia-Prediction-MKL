@@ -1,0 +1,20 @@
+Data converting
+
+MUST
+	- ther in clinical 	-> one hot
+	- e4 				-> one hot
+
+SUGGESTED
+
+	- gend 				-> 1 and -1
+	- pre				-> 1 and -1
+	- eversmoker		-> 1 and -1
+	
+----------------------------------------------
+
+	
+IMPUTING
+
+MAX, AVG or MIN?
+
+NaN checking
