@@ -1,0 +1,24 @@
+1. Learning:
+	a. Fixed (+simple, +good result stated by 3.1);
+	b. Heuristic;
+	c. Optimisation (+usual pattern);
+	d. Bayesian;
+	e. Boosting (+studied CV, +modified for variable selection);
+
+2. Functional:
+	a. Linear (+interpretability);
+	b. NonLinear;
+	c. Data-dependent (+local distribution);
+
+3. Target:
+	a. Similarity-based (-totally new approach);
+	b. Structural risk (+usual regularisation pattern);
+	c. Bayesian;
+
+4. Training:
+	a. One-step;
+	b. Two-step (+ease);
+
+5. Base:
+	a. SVM+SVR (+ease, +successful);
+	b. Gaussian Process [Bayesian];
