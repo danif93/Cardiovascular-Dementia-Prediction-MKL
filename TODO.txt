@@ -1,0 +1,41 @@
+Data converting
+
+MUST
+	- ther in clinical 	-> one hot
+	- e4 				-> one hot
+
+SUGGESTED
+
+	- gend 				-> 1 and -1
+	- pre				-> 1 and -1
+	- eversmoker		-> 1 and -1 (?)
+	
+----------------------------------------------
+
+	
+IMPUTING
+
+MAX, AVG or MIN?
+
+NaN checking
+
+
+----------------------------------------------
+
+
+LEARNING ....
+
+- 1/3 test, 2/3 training (monte carlo or other sampling methods?)
+
+- 5 x 2 cross validations on the training
+
+
+
+----------------------------------------------
+
+TESTING
+
+- Error measurement depends on the data
+	look if is better the accuracy, t-testing,
+	the precision, the recall or more
+	than one
