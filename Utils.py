@@ -2,6 +2,10 @@ from collections import Counter
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer
 
+
+#----------------------------------------
+# PREPROCESSING
+
 def value_strategy(v, strategy):
     if strategy == 'min':
         return np.min(v)
@@ -54,3 +58,72 @@ def oneHotEncoder(v):
         binary.append(int(row))
 
     return np.asarray(binary)
+
+# END PREPROCESSING
+
+#-------------------------------------------
+
+# SOLA AKW pg 22-23 (Similarity Optimizing Linear Approach with Arbitrary Kernel Weights)
+# Cortes approach
+
+def centeredKernel(K): # K^c
+    
+    s = K.shape
+    N = shape[0]
+    One = np.ones((s))
+    
+    return K - 1/N * One * One.T * K - 1/N * K * One * One.T + 1/(N*N) * (One.T * K * One) * One * One.T
+
+
+def frobeniusInnerProduct(A, B):
+
+    A = np.matrix.conjugate(A)
+    P = np.dot(A.T, B)
+    _, s, _ = np.linalg.svd(P)
+    return np.sum(s)
+
+
+def kernelSimilarityMatrix(K_list): # M
+    
+    M = np.zeros((len(K_list), len(K_list)))
+    
+    for i, K1 in enumerate(K_list):
+        for j, K2 in enumerate(K_list[i:]):
+            
+            s = frobeniusInnerProduct(K1, K2)
+            M[i, i+j] = s
+            
+            if j != 0:
+                M[i+j, i] = s
+            
+    return M
+
+
+def idealSimilarityVector(K_list, y): # a
+    
+    a = np.zeros((len(K_list)))
+    IK = np.dot(y, y.T) # ideal kernel
+    
+    for i, K in enumerate(K_list):
+        a[i] = frobeniusInnerProduct(K, IK)
+      
+    return a
+
+
+def centeredKernelAlignment(K_list, y):
+    
+    K_c_list = []
+    for K in K_list:
+        K_c_list.append(centeredKernel(K))
+    
+    M = kernelSimilarityMatrix(K_c_list)
+    
+    a = idealSimilarityVector(K_c_list, y)
+    
+    num = np.dot(np.linalg.inv(M), a)
+    
+    return num / np.linalg.norm(num)
+
+# END SOLA AKW
+
+#-------------------------------------------------------
