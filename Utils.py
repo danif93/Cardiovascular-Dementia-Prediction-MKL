@@ -93,10 +93,10 @@ class kernel:
     def kernelMatrix(self, X):
                   
         if self.K_type == 'linear':
-            return  X * self.Xtr.T
+            return  np.dot(X, self.Xtr.T)
                   
         if self.K_type == 'polynomial':
-            return np.power(X * self.Xtr.T + 1, self.param)
+            return np.power(np.dot(X, self.Xtr.T) + 1, self.param)
                   
         if self.K_type == 'gaussian':
             sim = np.zeros((self.Xtr.shape[0], self.Xtr.shape[0]))
@@ -126,7 +126,7 @@ def centeredKernel(K): # K^c
     N = shape[0]
     One = np.ones((s))
     
-    return K - 1/N * One * One.T * K - 1/N * K * One * One.T + 1/(N*N) * (One.T * K * One) * One * One.T
+    return K - 1/N * np.dot(np.dot(One, One.T), K) - 1/N * np.dot(np.dot(K, One), One.T) + 1/(N*N) * np.dot(np.dot(np.dot(np.dot(One.T, K), One), One), One.T)
 
 
 def kernelSimilarityMatrix(K_list): # M
@@ -179,13 +179,17 @@ def centeredKernelAlignment(K_list, y):
 class myMKL_srola:
 
      def __init__(self, X_list, K_type_list, y):
-                  
+
          # X_list: datasets list
          # K_name_list: names of kernels to use
          # y: ideal output vector
-
+         
+         self.y = y #used later in learning
+         self.error = -1 #used later in learning         
+         self.Xtr_list = X_list
          self.num_datasets = len(X_list)
          self.num_K_types = len(K_type_list)
+         self.num_samples = self.X_list[0].shape[0]
 
          self.eta = np.random.rand(self.num_datasets)
          self.lamb = np.random.rand(self.num_datasets, self.num_K_types)
@@ -218,10 +222,45 @@ class myMKL_srola:
           # randomly initialize mu vectors. every vector length depends on the kernel features. then we have a matrix of mu per kernel type
           for K in self.K_list[0]:
               self.mu_list.append(np.random.rand(self.num_datasets, K.shape[1]))
+
+
+    def learning(self, tol = 0.01):
+
+        while(True):
+            self.learnK()
+            self.learnMu()
+            self.learnLambda()
+            self.learnEta()
+            error = self.computeError()
+            if self.error < 0:
+                  continue
+            if np.abs(error-self.error) < tol:
+                  break
+     
                   
-                  
+    def getParam(self):
+
+        return self.K_objects_list, self.mu_list, self.lamb, self.eta
+
                   
     def test(self, X_list):
         #X_list = test set
-                  
+
         # TODO
+
+                  
+                  
+    def learnK(self): # TO COMPLETE
+            
+        #sum_eta eta*lambda* sum_k k*mu
+        
+        dataset_vec = []
+                  
+        for dataset, K_list in enumerate(self.K_list):
+            for kernel, K in enumerate(K_list):
+                  dataset_vec.append(np.dot(self.lamb[dataset, :], np.dot(K, mu_list[kernel][dataset, :])))
+               
+            dataset_vec.append(vec)
+                  
+        approximation = np.dot(self.eta, ...)
+        self.actualError = np.norm(self.y - approximation) ** 2
