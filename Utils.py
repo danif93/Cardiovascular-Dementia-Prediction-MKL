@@ -2,7 +2,9 @@ from collections import Counter
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import normalize
-
+from sklearn.linear_model import Lasso
+from sklearn.linear_model import LassoCV
+from sklearn.linear_model import ElasticNet
 
 #----------------------------------------
 # PREPROCESSING
@@ -109,8 +111,15 @@ class kernel:
     def getParam(self):
         return self.param
     
+    def setParam(self, param):
+        self.param = param
+        
+    def getMatrix(self):
+        return self.Xtr
+    
+    
 def getParamInterval(param, K_type):
-    return np.arange(param-1.5, param+1.5, 0,5) if K_type=='polynomial' else np.arange(param-0.3, param+0.3, 0.1)
+    return np.arange(param-1.5, param+1.5, 0.5) if K_type=='polynomial' else np.arange(param-0.3, param+0.3, 0.1)
     
 
 
@@ -186,6 +195,7 @@ class myMKL_srola:
         # y: ideal output vector
          
         self.y = y #used later in learning
+        self.ideal = np.dot(y, y.T) # used later in learning
         self.error = -1 #used later in learning         
         self.Xtr_list = X_list
         self.num_datasets = len(X_list)
@@ -194,7 +204,7 @@ class myMKL_srola:
 
         self.eta = np.random.rand(self.num_datasets)
         self.lamb = np.random.rand(self.num_datasets, self.num_K_types)
-        self.mu_list = [] # list of matrices. every matrix refers to a kernel and to all the datasets
+        self.mu_list = [] # list of lists of matrices. every matrix refers to a kernel and to all its detasets
 
 
          #---------------------------------------------------------------------------------------------                  
@@ -216,14 +226,14 @@ class myMKL_srola:
           #---------------------------------------------------------------------------------------------            
           # randomly initialize mu vectors. every vector length depends on the kernel features. then we have a matrix of mu per kernel type
         for K in self.K_list[0]:
-            self.mu_list.append(np.random.rand(self.num_datasets, K.shape[1]))
+            self.mu_list.append(np.ones(self.num_datasets, K.shape[1]))
 
 
     def learning(self, tol = 0.01):
 
         while(True):
-            self.learnK()
             self.learnMu()
+            self.learnK()
             self.learnLambda()
             self.learnEta()
             error = self.computeError()
@@ -238,24 +248,94 @@ class myMKL_srola:
         return self.K_objects_list, self.mu_list, self.lamb, self.eta
 
                   
-    #def test(self, X_list):
+    def test(self, X_list, goal = 'classification'):
         #X_list = test set
-
-        # TODO
-
-                  
-                  
-    def learnK(self): # TO COMPLETE
-            
-        #sum_eta eta*lambda* sum_k k*mu
         
-        dataset_vec = []
+        K_test_list = []
+        
+        for dataset_index, X in enumerate(X_list):
+            K_test_dataset_list = []
+            for k_index, mu_k in enumerate(self.mu_list):
+                tmp_X = X[:, np.where(mu_k[dataset_index] != 0)]
+                K_test_dataset_list.append(self.k_objects_list[i][k_index].kernelMatrix(tmp_X))
+                
+            K_test_list.append(K_test_dataset_list)
+            
+            
+        approximation = self.computeApproximation(K_test_list)
+        if goal == 'classification':
+            self.y_pred = classify(approximation, self.y)
+        else:
+            self.y_pred = regression(approximation)
+        
+        
+    def computeApproximation(self, kernel_list):
+
+        approximation = 0
                   
-        for dataset, K_list in enumerate(self.K_list):
+        for dataset, K_list in enumerate(kernel_list):
+            vec = np.zeros((self.num_samples))
             for kernel, K in enumerate(K_list):
-                  dataset_vec.append(np.dot(self.lamb[dataset, :], np.dot(K, mu_list[kernel][dataset, :])))
+                  vec += self.lamb[dataset, kernel] * K
+
                
             dataset_vec.append(vec)
-                  
-        approximation = np.dot(self.eta, ...)
-        self.actualError = np.linalg.norm(self.y - approximation) ** 2
+        for i, d in enumerate(dataset_vec):
+            approximation += self.eta[i] * d
+            
+            
+        return approximation
+    
+    
+    def learnMu(self):
+        
+        for k_index, mu_k in enumerate(self.mu_list):
+            for d_index, mu in enumerate(mu_k):
+                X = self.Xtr_list[d_index]
+                alphas = np.arange(0.001, 3, 0.007)
+                cl = LassoCV(alphas = alphas)
+                mu = cl.fit(X, self.y).coef_
+                mu = np.where(mu == 0, 0, 1)
+                k = self.k_objects_list[d_index][k_index]
+                k = kernel(X[:, np.where(mu != 0)], k.getType(), k.getParam())
+                self.k_objects_list[d_index][k_index] = k
+                self.K_list[d_index][k_index] = k.kernelMatrix(k.getMatrix())
+                
+    
+    def learnK(self):
+        
+        apprximation = self.computeApproximation(self.K_list)            
+        actualError = frobeniusInnerProduct(approximation - self.ideal, approximation - self.ideal)
+        tmp_K_list = self.K_list
+        
+        for i, k_list in enumerate(self.K_objects_list):
+            for j, k in enumerate(k_list):
+                if k.getType == 'linear':
+                    continue
+                interval = getParamInterval(k.getParam, k.getType)
+                score = []
+                matrices = []
+                for param in interval:
+                    matrices.append(k.setParam(param).kernelMatrix(k.getMatrix()))
+                    tmp_K_list[i][j] = matrices[-1]
+                    tmp_approximation = self.computeApproximation(tmp_K_list)
+                    score.append(frobeniusInnerProduct(tmp_approximation - self.ideal, tmp_approximation - self.ideal))
+                    
+                if actualError > np.min(score):
+                    actualError = np.min(score)
+                    tmp_K_list[i][j] = matrices[np.argmin(score)]
+                else
+                    tmp_K_list[i][j] = self.K_list[i][j]
+                
+        self.K_list = tmp_K_list
+            
+        
+    #def learnLambda(self):
+        
+        #TODO
+        
+        
+    #def learnEta(self):
+        
+        #TODO
+        
