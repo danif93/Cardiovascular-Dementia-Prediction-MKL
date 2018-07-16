@@ -79,10 +79,38 @@ def normalization(X, norm = 'l2):
     
     return normalize(X, norm = norm)
                   
+
+class kernel:
+
+    
+    def __init__(self, X, K_type, param = 3): #param = degree or sigma
                   
-def kernel(X, K_func):
+        self.Xtr = X
+        self.K_type = K_type
+        self.param = param
                   
-    return k_func(X)
+                  
+    def kernelMatrix(self, X):
+                  
+        if self.K_type == 'linear':
+            return  X * self.Xtr.T
+                  
+        if self.K_type == 'polynomial':
+            return np.power(X * self.Xtr.T + 1, self.param)
+                  
+        if self.K_type == 'gaussian':
+            sim = np.zeros((self.Xtr.shape[0], self.Xtr.shape[0]))
+                  
+            for i, sample_tr in enumerate(self.Xtr):
+                  for j, sample in enumerate(X):
+                      d = np.norm(sample_tr-sample) ** 2
+                  sim[i, j] = np.exp(-d/(2*param*param))
+                      
+            return sim
+                  
+                  
+    def getType(self):
+        return self.K_type
 
 
 # END GENERAL UTIL FUNCTIONS
@@ -148,16 +176,52 @@ def centeredKernelAlignment(K_list, y):
 
 # MY SROLA NKW
                   
- def myMKL_srola(X_list, K_name_list, y):
+class myMKL_srola:
+
+     def __init__(self, X_list, K_type_list, y):
                   
          # X_list: datasets list
          # K_name_list: names of kernels to use
          # y: ideal output vector
-                  
-         num_datasets = len(X_list)
-         K_types = len(K_name_list)
 
-         eta = np.random.rand(num_datasets)
-         lamb = np.random.rand(num_datasets, K_types)
-         mu_list = [] # list of matrices. every matrix refers to a kernel and to all the datasets
-         # TODO initialize mu_list
+         self.num_datasets = len(X_list)
+         self.num_K_types = len(K_type_list)
+
+         self.eta = np.random.rand(self.num_datasets)
+         self.lamb = np.random.rand(self.num_datasets, self.num_K_types)
+         self.mu_list = [] # list of matrices. every matrix refers to a kernel and to all the datasets
+
+
+         #---------------------------------------------------------------------------------------------                  
+
+         # get kernel objects and kernel matrices
+
+         self.K_objects_list = [] # list of lists of objects that create the kernel matrices. first list = kernel objets list of first detaset
+         self.K_list = [] # list of lists of kernels. first list associated to first dataset
+
+         for X in X_list:
+             dataset_kernel_objects_list = []
+             dataset_kernel_list = []
+             for K_type in K_type_list:
+
+                 k = kernel(X, self.num_K_type)  #small k object, big k matrix
+                 dataset_kernel_objects_list.append(k)
+                 dataset_kernel_list.append(k.kernelMatrix(X))
+
+             self.K_objects_list.append(dataset_kernel_objects_list)
+             self.K_list.append(dataset_kernel_list) 
+
+
+
+          #---------------------------------------------------------------------------------------------            
+
+          # randomly initialize mu vectors. every vector length depends on the kernel features. then we have a matrix of mu per kernel type
+          for K in self.K_list[0]:
+              self.mu_list.append(np.random.rand(self.num_datasets, K.shape[1]))
+                  
+                  
+                  
+    def test(self, X_list):
+        #X_list = test set
+                  
+        # TODO
