@@ -1,6 +1,7 @@
 from collections import Counter
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer
+from sklearn.preprocessing import normalize
 
 
 #----------------------------------------
@@ -63,6 +64,31 @@ def oneHotEncoder(v):
 
 #-------------------------------------------
 
+# GENERAL UTIL FUNCTIONS
+
+
+def frobeniusInnerProduct(A, B):
+
+    A = np.matrix.conjugate(A)
+    P = np.dot(A.T, B)
+    _, s, _ = np.linalg.svd(P)
+    return np.sum(s)
+
+
+def normalization(X, norm = 'l2):
+    
+    return normalize(X, norm = norm)
+                  
+                  
+def kernel(X, K_func):
+                  
+    return k_func(X)
+
+
+# END GENERAL UTIL FUNCTIONS
+
+#-------------------------------------------
+
 # SOLA AKW pg 22-23 (Similarity Optimizing Linear Approach with Arbitrary Kernel Weights)
 # Cortes approach
 
@@ -73,14 +99,6 @@ def centeredKernel(K): # K^c
     One = np.ones((s))
     
     return K - 1/N * One * One.T * K - 1/N * K * One * One.T + 1/(N*N) * (One.T * K * One) * One * One.T
-
-
-def frobeniusInnerProduct(A, B):
-
-    A = np.matrix.conjugate(A)
-    P = np.dot(A.T, B)
-    _, s, _ = np.linalg.svd(P)
-    return np.sum(s)
 
 
 def kernelSimilarityMatrix(K_list): # M
@@ -127,3 +145,19 @@ def centeredKernelAlignment(K_list, y):
 # END SOLA AKW
 
 #-------------------------------------------------------
+
+# MY SROLA NKW
+                  
+ def myMKL_srola(X_list, K_name_list, y):
+                  
+         # X_list: datasets list
+         # K_name_list: names of kernels to use
+         # y: ideal output vector
+                  
+         num_datasets = len(X_list)
+         K_types = len(K_name_list)
+
+         eta = np.random.rand(num_datasets)
+         lamb = np.random.rand(num_datasets, K_types)
+         mu_list = [] # list of matrices. every matrix refers to a kernel and to all the datasets
+         # TODO initialize mu_list
