@@ -8,6 +8,9 @@ from sklearn.linear_model import Lasso
 from sklearn.linear_model import LassoCV
 from sklearn.linear_model import ElasticNet
 
+from multiprocessing import Process
+from queue import Queue
+
 #----------------------------------------
 # PREPROCESSING
 
@@ -80,6 +83,62 @@ def frobeniusInnerProduct(A, B):
 def normalization(X, norm = 'l2'):
     return normalize(X, norm = norm)
 
+class kernelMultiparameter: # interface class to simulate a kernel which can deal with an interval of feasible parameters
+    
+    def __init__(self, X, K_type, param, dataset_name = 'D0'): #param = degree or sigma
+
+        self.Xtr = X
+        self.K_type = K_type
+        self.dataset_name = dataset_name
+        self.k_list = []
+        
+        for p in param:
+            k_list.append(kernel(X, K_type, p))
+            
+        self.K_list = []
+
+    
+    def kM_child(k, X): # porcess function of kernelMatrix
+        k.kernelMatrix(X)
+        
+    def kernelMatrix(self, X): # ask to all the kernel to compute the similarity matrix in parallel
+        
+        jobs = []
+        for k in self.k_list:
+            proc = Process(target=kM_child, args=((k, X),))
+            jobs.append(proc)
+            proc.start()
+        
+        for proc in jobs:
+            proc.join()
+
+    def gKM_child(k, queue):
+        
+        K = k.getKernelMatrix()
+        param = k.getParam()
+        queue.put([K, param])
+            
+    def getKernelMatrices(self):
+        
+        queue = Queue()
+        jobs = []
+        for k in self.k_list:
+            proc = Process(target=gKM_child, args=((k, queue),))
+            jobs.append(proc)
+            proc.start()
+        
+        for proc in jobs:
+            proc.join()
+            
+        info = [self.dataset_name, self.K_type]
+        
+        while ~queue.empty():
+            info.append(queue.get())
+            
+        return info
+            
+        
+        
 
 class kernel:
 
@@ -92,30 +151,39 @@ class kernel:
     def kernelMatrix(self, X):
 
         if self.K_type == 'linear':
-            return  np.dot(X, self.Xtr.T)
+            self.K = np.dot(X, self.Xtr.T)
+            return  self.K
 
         if self.K_type == 'polynomial':
             # return polynomial_kernel(X, self.Xtr, degree=self.param)
-            return np.power(np.dot(X, self.Xtr.T)+1, self.param)
+            self.K = np.power(np.dot(X, self.Xtr.T)+1, self.param)
+            return  self.K
 
         if self.K_type == 'gaussian':
-            sim = np.zeros((X.shape[0], self.Xtr.shape[0]))
+            self.K = np.zeros((X.shape[0], self.Xtr.shape[0]))
             for i, sample_tr in enumerate(self.Xtr):
                 for j, sample in enumerate(X):
                     d = np.linalg.norm(sample_tr-sample) ** 2
-                    sim[j, i] = np.exp(-d/(2*self.param*self.param))
-            return sim
+                    self.K[j, i] = np.exp(-d/(2*self.param*self.param))
+            return  self.K
+        
+    
 
     def getType(self):
         return self.K_type
 
     def getParam(self):
         return self.param
+    
     def setParam(self, param):
         self.param = param
         
     def getMatrix(self):
         return self.Xtr
+    
+    def getKernelMatrix(self):
+        return self.K
+
 
 
 
@@ -194,6 +262,7 @@ def centeredKernelAlignment(K_list, y):
 
     return num / np.linalg.norm(num)
 
+"""
 def cortesAlignment(k1, k2):
     k1c = centeredKernel(k1)
     k2c = centeredKernel(k2)
@@ -201,7 +270,35 @@ def cortesAlignment(k1, k2):
     num = frobeniusInnerProduct(k1c, k2c)
     den = np.sqrt(frobeniusInnerProduct(k1c, k1c)*frobeniusInnerProduct(k2c, k2c))
     return num/den
+"""
 
+def centeredKernelAlignmentCV(dict_kernel_param, dataset_list, y): 
+    #dict_kernel_param = ['kernel_type'] -> param_list
+    
+    k_objects_list = []    # list of lists. every list is referred to a dataset and contains all the kernel object
+    for X in dataset_list:
+        k_objects_list_detaset = []
+        for dkp in dict_kernel_param.items():
+            k_objects_list_detaset.append(kernelMultiparameter(X, dkp[0], dkp[1]).kernelMatrix(X))
+            
+        k_objects_list.append(k_objects_list_detaset)
+        
+    
+    K_list = [] # list of lists of lists. first enty is referred to the dataset, the second to the kernel type.
+                # the last list has length num param +2 and 
+                # is in the form [dataset name, kernel type, (kernel using param 1, param 1), 2, 3, ...]
+    for k_objects_list_detaset in k_objects_list:
+        K_list_dataset = []
+        for k in k_objects_list_detaset:
+            K_list_dataset.append(k.getMatrices())
+            
+        K_list.append(K_list_dataset)
+        
+        
+    #TODO parallelized combinatorial association of kernels
+    
+
+"""
 def parameterOptimization(k_dataset_wrapper, train_label, n_epoch=20, tol=0.01, kind='train_ds', verbose=False):
 
     previousCA = -1
@@ -254,7 +351,7 @@ def parameterOptimization(k_dataset_wrapper, train_label, n_epoch=20, tol=0.01, 
                 if verbose: print('\t\tkept {} with sim: {}'.format(kernel.getParam(), currentCA))
 
     return k_dataset_wrapper
-
+"""
 # END SOLA AKW
 
 #-------------------------------------------------------
