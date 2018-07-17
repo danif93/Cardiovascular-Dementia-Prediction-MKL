@@ -184,7 +184,7 @@ def centeredKernelAlignment(K_list, y):
 
 #-------------------------------------------------------
 
-# MY SROLA NKW
+# MY SOLA NKW
                   
 class myMKL_srola:
 
@@ -195,7 +195,7 @@ class myMKL_srola:
         # y: ideal output vector
          
         self.y = y #used later in learning
-        self.ideal = np.dot(y, y.T) # used later in learning
+        self.IK = np.dot(y, y.T) # used later in learning
         self.error = -1 #used later in learning         
         self.Xtr_list = X_list
         self.num_datasets = len(X_list)
@@ -305,7 +305,7 @@ class myMKL_srola:
     def learnK(self):
         
         apprximation = self.computeApproximation(self.K_list)            
-        actualError = frobeniusInnerProduct(approximation - self.ideal, approximation - self.ideal)
+        actualError = frobeniusInnerProduct(approximation - self.IK, approximation - self.IK)
         tmp_K_list = self.K_list
         
         for i, k_list in enumerate(self.K_objects_list):
@@ -319,7 +319,7 @@ class myMKL_srola:
                     matrices.append(k.setParam(param).kernelMatrix(k.getMatrix()))
                     tmp_K_list[i][j] = matrices[-1]
                     tmp_approximation = self.computeApproximation(tmp_K_list)
-                    score.append(frobeniusInnerProduct(tmp_approximation - self.ideal, tmp_approximation - self.ideal))
+                    score.append(frobeniusInnerProduct(tmp_approximation - self.IK, tmp_approximation - self.IK))
                     
                 if actualError > np.min(score):
                     actualError = np.min(score)
@@ -330,12 +330,93 @@ class myMKL_srola:
         self.K_list = tmp_K_list
             
         
-    #def learnLambda(self):
+    def learnLambda(self):
         
-        #TODO
+        for dataset_index, lamb in enumerate(self.lamb):
+            
+            K = []
+            eta_ = 1/self.eta[dataset_index]
+            for Ki in self.K_list[dataset_index]:
+                K.append(Ki*eta_)
+                
+            K_ = [] #  K'
+            for Ki in K:
+                K_.append(Ki+ np.identity(Ki.shape[0])) #np.identity(...) * gamma_lambda for cross validation   
+
+            KTK = np.zeros((len(K_), len(K_), K_[0].shape[0], K_[0].shape[1]) # K'_ij
+            for i, Ki in enumerate(K_):
+                for j, Kj in enumerate(K_):
+                    KTK[i, j, :, :] = np.dot(Ki, Kj)
+                           
+
+            fixed_approximation = np.zeros(self.IK.shape)                           
+            for d_index, K_list_dataset in enumerate(self.K_list):
+                if d_index == dataset_index:
+                    continue
+                           
+                tmp_approximation = np.zeros(self.IK.shape)
+                for kernel_index, Ke in enumerate(K_list_dataset):
+                    tmp_approximation += Ke * self.lamb[d_index, kernel_index]
+
+                fixed_approximation += self.eta[d_index] * tmp_approximation
+                           
+            B = self.IK - fixed_approximation
+            
+             
+            # HARD CODED
         
+            K11_inv = np.linalg.inv(KTK[0,0,:,:])
+            K21_K11 = np.dot(KTK[1,0,:,:], K11_inv)
+            X = np.dot(K[1], self.IK) - np.dot(K21_K11, np.dot(K[0], self.IK))
+            Y = KTK[1,2,:,:] - np.dot(K21_K11, KTK[0,2,:,:])
+            Z = KTK[1,1,:,:] - np.dot(K21_K11, KTK[0,1,:,:])
+            Z_inv = np.linalg.inv(Z)
+            P = np.dot(K11_inv, (np.dot(K[0], self.IK) - np.dot(KTK[0,1,:,:], np.dot(X, Z_inv))))
+            Q = np.dot(K11_inv, (np.dot(KTK[0,1,:,:], np.dot(Y, Z_inv)) - KTK[0,2,:,:]))
+            M = np.dot(KTK[2,0,:,:], Q) - np.dot(KTK[2,1,:,:], np.dot(Y, Z_inv)) + KTK[2,2,:,:]
+            M_inv = np.linalg.inv(M)
+            N = np.dot(K[2], self.IK) - np.dot(KTK[2,0,:,:], P) - np.dot(KTK[2,1,:,:], np.dot(X, Z_inv))
+
+            M_inv_N = np.dot(M_inv, N)
+            self.lamb[dataset_index, 2] = M_inv_N[0,0]
+            self.lamb[dataset_index, 0] = (P + np.dot(Q, M_inv_N))[0,0]
+            self.lamb[dataset_index, 1] = np.dot((X - np.dot(Y, M_inv_N))), Z_inv)[0,0] 
+
+                           
+    def learnEta(self):
         
-    #def learnEta(self):
+        D = []
+        for dataset_index, K_list_dataset in enumerate(self.K_list):
+            Di = np.zeros((self.num_samples, self.num_samples)
+            for kernel, K in enumerate(K_list_dataset):
+                Di += K * self.lamb[dataset, kernel]
+                          
+            D.append(Di)
+                     
+        D_ = [] #  D'
+        for Di in D:
+            D_.append(Di+ np.identity(Di.shape[0])) #np.identity(...) * gamma_eta for cross validation
+                      
+        DTD = np.zeros((len(D_), len(D_), D_[0].shape[0], D_[0].shape[1]) # D'_ij
+        for i, Di in enumerate(D_):
+            for j, Dj in enumerate(D_):
+                DTD[i, j, :, :] = np.dot(Di, Dj)
+                          
+        # HARD CODED
         
-        #TODO
-        
+        D11_inv = np.linalg.inv(DTD[0,0,:,:])
+        D21_D11 = np.dot(DTD[1,0,:,:], D11_inv)
+        X = np.dot(D[1], self.IK) - np.dot(D21_D11, np.dot(D[0], self.IK))
+        Y = DTD[1,2,:,:] - np.dot(D21_D11, DTD[0,2,:,:])
+        Z = DTD[1,1,:,:] - np.dot(D21_D11, DTD[0,1,:,:])
+        Z_inv = np.linalg.inv(Z)
+        P = np.dot(D11_inv, (np.dot(D[0], self.IK) - np.dot(DTD[0,1,:,:], np.dot(X, Z_inv))))
+        Q = np.dot(D11_inv, (np.dot(DTD[0,1,:,:], np.dot(Y, Z_inv)) - DTD[0,2,:,:]))
+        M = np.dot(DTD[2,0,:,:], Q) - np.dot(DTD[2,1,:,:], np.dot(Y, Z_inv)) + DTD[2,2,:,:]
+        M_inv = np.linalg.inv(M)
+        N = np.dot(D[2], self.IK) - np.dot(DTD[2,0,:,:], P) - np.dot(DTD[2,1,:,:], np.dot(X, Z_inv))
+
+        M_inv_N = np.dot(M_inv, N)
+        self.eta[2] = M_inv_N[0,0]
+        self.eta[0] = (P + np.dot(Q, M_inv_N))[0,0]
+        self.eta[1] = np.dot((X - np.dot(Y, M_inv_N))), Z_inv)[0,0]
