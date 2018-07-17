@@ -334,11 +334,43 @@ class myMKL_srola:
         
         for dataset_index, lamb in enumerate(self.lamb):
             
-            K = []
+            C = np.zeros((self.K_list[0][0].shape[0], self.K_list[0][0].shape[0], len(self.K_list[0])))
             eta_ = 1/self.eta[dataset_index]
-            for Ki in self.K_list[dataset_index]:
-                K.append(Ki*eta_)
+            for i, Ki in enumerate(self.K_list[dataset_index]):
+                C[:,:,i] = Ki*eta_
                 
+                
+        
+            for dataset_index, K_list_dataset in enumerate(self.K_list):
+                Di = np.zeros((self.num_samples, self.num_samples)
+                for kernel, K in enumerate(K_list_dataset):
+                    Di += K * self.lamb[dataset, kernel]
+
+                C[:,:,i] = Di
+                              
+            fixed_approximation = np.zeros(self.IK.shape)                           
+            for d_index, K_list_dataset in enumerate(self.K_list):
+                if d_index == dataset_index:
+                    continue
+                           
+                tmp_approximation = np.zeros(self.IK.shape)
+                for kernel_index, Ke in enumerate(K_list_dataset):
+                    tmp_approximation += Ke * self.lamb[d_index, kernel_index]
+
+                fixed_approximation += self.eta[d_index] * tmp_approximation
+                           
+            Y = self.IK - fixed_approximation
+                              
+            A = np.zeros((len(self.K_list[0]), len(self.K_list[0]))
+            B = np.zeros((len(self.K_list[0])))
+            for row in C:
+                for elem in row:
+                   B += elem
+                   A += np.dot(elem, elem.T)
+
+            A += np.identity(A.shape[0]) #np.identity(...) * gamma_lambda for cross validation 
+            self.lamb[dataset_index, :] = np.dot(np.linalg.inv(A), np.dot(B, Y)) # TODO control dimensions
+            """    
             K_ = [] #  K'
             for Ki in K:
                 K_.append(Ki+ np.identity(Ki.shape[0])) #np.identity(...) * gamma_lambda for cross validation   
@@ -380,19 +412,31 @@ class myMKL_srola:
             M_inv_N = np.dot(M_inv, N)
             self.lamb[dataset_index, 2] = M_inv_N[0,0]
             self.lamb[dataset_index, 0] = (P + np.dot(Q, M_inv_N))[0,0]
-            self.lamb[dataset_index, 1] = np.dot((X - np.dot(Y, M_inv_N))), Z_inv)[0,0] 
+            self.lamb[dataset_index, 1] = np.dot((X - np.dot(Y, M_inv_N))), Z_inv)[0,0] """
 
                            
     def learnEta(self):
         
-        D = []
+        C = np.zeros((self.K_list[0][0].shape[0], self.K_list[0][0].shape[0], len(self.Xtr_list)))
         for dataset_index, K_list_dataset in enumerate(self.K_list):
             Di = np.zeros((self.num_samples, self.num_samples)
             for kernel, K in enumerate(K_list_dataset):
                 Di += K * self.lamb[dataset, kernel]
                           
-            D.append(Di)
+            C[:,:,i] = Di
+                          
+        Y = self.IK.ravel()
+        A = np.zeros((len(self.Xtr_list), len(self.Xtr_list))
+        B = np.zeros((len(self.Xtr_list)))
+        for row in C:
+            for elem in row:
+               B += elem
+               A += np.dot(elem, elem.T)
+           
+        A += np.identity(A.shape[0]) #np.identity(...) * gamma_eta for cross validation
+        self.eta = np.dot(np.linalg.inv(A), np.dot(B, Y)) # TODO control dimensions
                      
+         """            
         D_ = [] #  D'
         for Di in D:
             D_.append(Di+ np.identity(Di.shape[0])) #np.identity(...) * gamma_eta for cross validation
@@ -419,4 +463,4 @@ class myMKL_srola:
         M_inv_N = np.dot(M_inv, N)
         self.eta[2] = M_inv_N[0,0]
         self.eta[0] = (P + np.dot(Q, M_inv_N))[0,0]
-        self.eta[1] = np.dot((X - np.dot(Y, M_inv_N))), Z_inv)[0,0]
+        self.eta[1] = np.dot((X - np.dot(Y, M_inv_N))), Z_inv)[0,0]"""
