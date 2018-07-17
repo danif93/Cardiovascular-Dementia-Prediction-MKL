@@ -2,7 +2,8 @@ from collections import Counter
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import normalize
-
+from sklearn.metrics.pairwise import polynomial_kernel
+import math as mt
 
 #----------------------------------------
 # PREPROCESSING
@@ -68,11 +69,9 @@ def oneHotEncoder(v):
 
 
 def frobeniusInnerProduct(A, B):
-
-    A = np.matrix.conjugate(A)
-    P = np.dot(A.T, B)
-    _, s, _ = np.linalg.svd(P)
-    return np.sum(s)
+    A = np.matrix.conjugate(A).ravel()
+    B = B.ravel()
+    return np.dot(A, B)
 
 
 def normalization(X, norm = 'l2'):   
@@ -93,14 +92,15 @@ class kernel:
             return  np.dot(X, self.Xtr.T)
                   
         if self.K_type == 'polynomial':
-            return np.power(np.dot(X, self.Xtr.T) + 1, self.param)
+            # return polynomial_kernel(X, self.Xtr, degree=self.param)
+            return np.power(np.dot(X, self.Xtr.T)+1, self.param)
                   
         if self.K_type == 'gaussian':
-            sim = np.zeros((self.Xtr.shape[0], self.Xtr.shape[0]))                 
+            sim = np.zeros((X.shape[0], self.Xtr.shape[0]))                 
             for i, sample_tr in enumerate(self.Xtr):
                 for j, sample in enumerate(X):
                     d = np.linalg.norm(sample_tr-sample) ** 2
-                    sim[i, j] = np.exp(-d/(2*self.param*self.param))                   
+                    sim[j, i] = np.exp(-d/(2*self.param*self.param))                   
             return sim
                                    
     def getType(self):
@@ -108,11 +108,28 @@ class kernel:
     
     def getParam(self):
         return self.param
+    def setParam(self, param):
+        self.param = param
     
-def getParamInterval(param, K_type):
-    return np.arange(param-1.5, param+1.5, 0,5) if K_type=='polynomial' else np.arange(param-0.3, param+0.3, 0.1)
     
-
+def getParamInterval(kernel):
+    param = kernel.getParam()
+    g_step = param/5
+    k_type = kernel.getType()
+    return np.arange(np.max([param-(g_step*2), g_step]), param+(g_step*2), g_step) if k_type=='gaussian' else np.arange(np.max([param-3,1]), param+3, 1)
+    
+def getKernelList(wrapper):
+    k_train_list = []
+    for kernel_wrapp in wrapper:
+        k_train_list.append(kernel_wrapp['kernel'].kernelMatrix(kernel_wrapp['train_ds']))
+    return k_train_list
+                          
+def kernelMatrixSum(wrapper, weights, size, kind='train_ds'):
+    k_sumMat = np.zeros([size, size])
+    # sum of all kernel train matrix
+    for kernel_wrapp, w in zip(wrapper, weights):
+        k_sumMat += kernel_wrapp['kernel'].kernelMatrix(kernel_wrapp[kind])*w
+    return k_sumMat
 
 # END GENERAL UTIL FUNCTIONS
 
@@ -149,7 +166,7 @@ def kernelSimilarityMatrix(K_list): # M
 def idealSimilarityVector(K_list, y): # a
     
     a = np.zeros((len(K_list)))
-    IK = np.dot(y, y.T) # ideal kernel
+    IK = np.dot(y.reshape(-1,1), y.reshape(-1,1).T) # ideal kernel
     
     for i, K in enumerate(K_list):
         a[i] = frobeniusInnerProduct(K, IK)
@@ -159,9 +176,7 @@ def idealSimilarityVector(K_list, y): # a
 
 def centeredKernelAlignment(K_list, y):
     
-    K_c_list = []
-    for K in K_list:
-        K_c_list.append(centeredKernel(K))
+    K_c_list = [centeredKernel(K) for K in K_list]
     
     M = kernelSimilarityMatrix(K_c_list)
     
@@ -171,6 +186,67 @@ def centeredKernelAlignment(K_list, y):
     
     return num / np.linalg.norm(num)
 
+def cortesAlignment(k1, k2):
+    k1c = centeredKernel(k1)
+    k2c = centeredKernel(k2)
+    
+    num = frobeniusInnerProduct(k1c, k2c)
+    den = np.sqrt(frobeniusInnerProduct(k1c, k1c)*frobeniusInnerProduct(k2c, k2c))
+    return num/den
+
+def parameterOptimization(k_dataset_wrapper, train_label, n_epoch=20, tol=0.01, kind='train_ds', verbose=False):
+    
+    previousCA = -1
+    k_train_list = getKernelList(k_dataset_wrapper)        
+    weights = centeredKernelAlignment(k_train_list, train_label)
+                            
+    for i in range(n_epoch):
+        
+        k_sumTrain = kernelMatrixSum(k_dataset_wrapper, weights, len(train_label), kind=kind)
+        currentCA = cortesAlignment(k_sumTrain, np.dot(train_label.reshape(-1,1), train_label.reshape(-1,1).T))
+        if verbose: print('epoch num {}; current CA is: {}'.format(i+1, currentCA))
+        
+        if previousCA>0 and currentCA>0 and np.abs(previousCA-currentCA)<tol: break
+        else: previousCA = currentCA
+     
+        for kernel_idx in np.argsort(weights): # start optimizing the most impactful kernel parameter
+            if verbose: print('\toptimizing {}'.format(kernel_idx))
+            kernel = k_dataset_wrapper[kernel_idx]['kernel']
+
+            if (kernel.getType()=='linear'): continue
+
+            param_interval = getParamInterval(kernel)
+            if verbose: print('\t\toptimizing over [{},{}]'.format(param_interval[0], param_interval[-1]))
+
+            similarity_grid = np.zeros(len(param_interval))
+            old_param = k_dataset_wrapper[kernel_idx]['kernel'].getParam()
+
+            for p_idx, param in enumerate(param_interval):
+                k_dataset_wrapper[kernel_idx]['kernel'].setParam(param)
+
+                k_sumTrain = kernelMatrixSum(k_dataset_wrapper, weights, len(train_label), kind=kind)
+
+                similarity_grid[p_idx] = cortesAlignment(k_sumTrain, 
+                                                         np.dot(train_label.reshape(-1,1), train_label.reshape(-1,1).T))
+
+            selected = np.argmax(similarity_grid)
+            
+            if similarity_grid[selected] > currentCA:
+                currentCA = similarity_grid[selected]
+                k_dataset_wrapper[kernel_idx]['kernel'].setParam(param_interval[selected])
+                
+                # update the weights with the new configuration
+                k_train_list = getKernelList(k_dataset_wrapper)          
+                weights = centeredKernelAlignment(k_train_list, train_label)
+                
+                if verbose: print('\t\tselected {} with sim: {}'.format(param_interval[selected], currentCA))
+                                    
+            else: 
+                k_dataset_wrapper[kernel_idx]['kernel'].setParam(old_param)
+                if verbose: print('\t\tkept {} with sim: {}'.format(kernel.getParam(), currentCA))
+         
+    return k_dataset_wrapper
+                    
 # END SOLA AKW
 
 #-------------------------------------------------------
