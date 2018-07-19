@@ -8,8 +8,8 @@ class GridSearchCV:
     def __init__(self, estimator, param_grid):
         
         self.estimator = estimator
-        self.Ktype_list = param_grid["Ktype_list"]
-        self.parameters_lists = param_grid["parameters_lists"]
+        self.Ktype_list = param_grid.keys()
+        self.parameters_lists = param_grid.values()
        
     
     def fit(self, Xtr_list, IK):
@@ -22,7 +22,10 @@ class GridSearchCV:
         
         # all possible combination of kernel configurations across the datasets
         for i in range(len(Xtr_list)-1):
-            self.configuration_list_ = [list(elem) for elem in itertools.product(*[self.configuration_list_, [list(elem) for elem in itertools.product(*self.param_grid)]])]
+            if i == 0:
+                self.configuration_list_ = [list(elem) for elem in itertools.product(*[self.configuration_list_, [list(elem) for elem in itertools.product(*self.param_grid)]])]
+            else:
+                self.configuration_list_ = [list(elem[0]+[elem[1]]) for elem in itertools.product(*[self.configuration_list_, [list(elem) for elem in itertools.product(*l)]])]
         
         # list of kernels_wrappers. To each possible configuration of the hyperparameter a kernels_wrapper is given 
         self.k_wrap_list_ = []
