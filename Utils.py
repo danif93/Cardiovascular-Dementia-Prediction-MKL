@@ -1,6 +1,7 @@
 from collections import Counter
 import numpy as np
 import math as mt
+import quadprog as qp
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import normalize
 
@@ -93,7 +94,7 @@ def quadprog_solve_qp(P, q, G=None, h=None, A=None, b=None):
         qp_C = -G.T
         qp_b = -h
         meq = 0
-    return quadprog.solve_qp(qp_G, qp_a, qp_C, qp_b, meq)[0]
+    return qp.solve_qp(qp_G, qp_a, qp_C, qp_b, meq)[0]
 
 
 def frobeniusInnerProduct(A, B):
