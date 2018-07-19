@@ -4,7 +4,8 @@ import math as mt
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import normalize
 
-from sklearn.metrics.pairwise import polynomial_kernel
+from sklearn.metrics.pairwise import linear_kernel, polynomial_kernel, rbf_kernel, laplacian_kernel, sigmoid_kernel
+
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LassoCV
 from sklearn.linear_model import ElasticNet
@@ -90,23 +91,23 @@ def normalization(X, norm = 'l2'):
 
 def getParamInterval(kernel):
     param = kernel.getParam()
-    g_step = param/5
+    g_step = param/10
     k_type = kernel.getType()
-    return np.arange(np.max([param-(g_step*2), g_step]), param+(g_step*2), g_step) if k_type=='gaussian' else np.arange(np.max([param-3,1]), param+3, 1)
+    return np.arange(np.max([param-(g_step*8), g_step]), param+(g_step*8), g_step) if k_type=='gaussian' else np.arange(np.max([param-8,1]), param+8, 2)
 
 
-def getKernelList(wrapper):
+def getKernelList(wrapper, kind='train_ds'):
     k_train_list = []
     for kernel_wrapp in wrapper:
-        k_train_list.append(kernel_wrapp['kernel'].kernelMatrix(kernel_wrapp['train_ds']))
+        k_train_list.append(kernel_wrapp['kernel'].kernelMatrix(kernel_wrapp[kind]))
     return k_train_list
 
 
-def kernelMatrixSum(wrapper, weights, size, kind='train_ds'):
+def kernelMatrixSum(kernel_list, weights, size):
     k_sumMat = np.zeros([size, size])
-    # sum of all kernel train matrix
-    for kernel_wrapp, w in zip(wrapper, weights):
-        k_sumMat += kernel_wrapp['kernel'].kernelMatrix(kernel_wrapp[kind])*w
+    # sum of all kernel matrix
+    for kernel, w in zip(kernel_list, weights):
+        k_sumMat += kernel*w
     return k_sumMat
 
 # END GENERAL UTIL FUNCTIONS
@@ -192,8 +193,11 @@ class kernelMultiparameter: # interface class to simulate a kernel which can dea
         
 
 class kernel:
+    """linear_kernel, polynomial_kernel, rbf_kernel, laplacian_kernel, sigmoid_kernel"""
 
-    def __init__(self, X, K_type, param = 3): #param = degree or sigma
+    def __init__(self, X, K_type, param = None): #param = degree or sigma
+        
+        if not param: raise ArgumentExcpetion("Kernel parameter not set properly")
 
         self.Xtr = X
         self.K_type = K_type
@@ -202,21 +206,28 @@ class kernel:
     def kernelMatrix(self, X):
 
         if self.K_type == 'linear':
-            self.K = np.dot(X, self.Xtr.T)
+            self.K = linear_kernel(self.Xtr, X) # np.dot(X, self.Xtr.T)
             return  self.K
 
         if self.K_type == 'polynomial':
-            # return polynomial_kernel(X, self.Xtr, degree=self.param)
-            self.K = np.power(np.dot(X, self.Xtr.T)+1, self.param)
+            self.K = polynomial_kernel(self.Xtr, X, degree=self.param) # np.power(np.dot(X, self.Xtr.T)+1, self.param)
             return  self.K
 
         if self.K_type == 'gaussian':
-            self.K = np.zeros((X.shape[0], self.Xtr.shape[0]))
-            for i, sample_tr in enumerate(self.Xtr):
-                for j, sample in enumerate(X):
-                    d = np.linalg.norm(sample_tr-sample) ** 2
-                    self.K[j, i] = np.exp(-d/(2*self.param*self.param))
+            self.K = rbf_kernel(self.Xtr, X, gamma=self.param) # np.zeros((X.shape[0], self.Xtr.shape[0]))
+                                                               # for i, sample_tr in enumerate(self.Xtr):
+                                                               #   for j, sample in enumerate(X):
+                                                               #     d = np.linalg.norm(sample_tr-sample) ** 2
+                                                               #     self.K[j, i] = np.exp(-d/(2*self.param*self.param))
             return  self.K
+        
+        if self.K_type == 'laplacian':
+            self.K = laplacian_kernel(self.Xtr, X, gamma=self.param)
+            return self.K
+            
+        if self.K_type == 'sigmoid':
+            self.K = sigmoid_kernel(self.Xtr, X, gamma=self.param)
+            return self.K
         
     
 
@@ -323,11 +334,11 @@ class centeredKernelAlignment:
 
     def computeEta(K_list, IK):
 
-        K_c_list = [self._centeredKernel(K) for K in K_list]
+        K_c_list = [centeredKernelAlignment._centeredKernel(K) for K in K_list]
 
-        M = self._kernelSimilarityMatrix(K_c_list)
+        M = centeredKernelAlignment._kernelSimilarityMatrix(K_c_list)
 
-        a = self._idealSimilarityVector(K_c_list, IK)
+        a = centeredKernelAlignment._idealSimilarityVector(K_c_list, IK)
 
         num = np.dot(np.linalg.inv(M), a)
 
@@ -335,8 +346,8 @@ class centeredKernelAlignment:
 
 
     def cortesAlignment(k1, k2):
-        k1c = centeredKernel(k1)
-        k2c = centeredKernel(k2)
+        k1c = centeredKernelAlignment._centeredKernel(k1)
+        k2c = centeredKernelAlignment._centeredKernel(k2)
 
         num = frobeniusInnerProduct(k1c, k2c)
         den = np.sqrt(frobeniusInnerProduct(k1c, k1c)*frobeniusInnerProduct(k2c, k2c))
@@ -394,18 +405,24 @@ def centeredKernelAlignmentCV(dict_kernel_param, dataset_list, y):
     
     
 
-"""
-def parameterOptimization(k_dataset_wrapper, train_label, n_epoch=20, tol=0.01, kind='train_ds', verbose=False):
 
+def parameterOptimization(k_dataset_wrapper, train_label, n_epoch=100, tol=0.01, verbose=False):
+    
+    idealKernel = train_label.reshape(-1,1).dot(train_label.reshape(-1,1).T)
+    
     previousCA = -1
-    k_train_list = getKernelList(k_dataset_wrapper)
-    weights = centeredKernelAlignment(k_train_list, train_label)
+    
+    k_train_list = getKernelList(k_dataset_wrapper, kind='train_ds')
+    
+    cka = centeredKernelAlignment
+    
+    weights = cka.computeEta(k_train_list, idealKernel)
 
     for i in range(n_epoch):
-
-        k_sumTrain = kernelMatrixSum(k_dataset_wrapper, weights, len(train_label), kind=kind)
-        currentCA = cortesAlignment(k_sumTrain, np.dot(train_label.reshape(-1,1), train_label.reshape(-1,1).T))
-        if verbose: print('epoch num {}; current CA is: {}'.format(i+1, currentCA))
+        k_train_list = getKernelList(k_dataset_wrapper, kind='train_ds')
+        k_sumTrain = kernelMatrixSum(k_train_list, weights, len(train_label))
+        currentCA = cka.cortesAlignment(k_sumTrain, idealKernel)
+        if verbose: print('Epoch num {}; current CA is: {}'.format(i+1, currentCA))
 
         if previousCA>0 and currentCA>0 and np.abs(previousCA-currentCA)<tol: break
         else: previousCA = currentCA
@@ -421,33 +438,39 @@ def parameterOptimization(k_dataset_wrapper, train_label, n_epoch=20, tol=0.01, 
 
             similarity_grid = np.zeros(len(param_interval))
             old_param = k_dataset_wrapper[kernel_idx]['kernel'].getParam()
-
+            
+            old_weightsConfig = np.zeros((len(param_interval)+1, len(k_dataset_wrapper)))
+            old_weightsConfig[-1] = weights
+             
             for p_idx, param in enumerate(param_interval):
                 k_dataset_wrapper[kernel_idx]['kernel'].setParam(param)
+                
+                # update the weights with the new configuration
+                k_train_list = getKernelList(k_dataset_wrapper, kind='train_ds')
+                weights = cka.computeEta(k_train_list, idealKernel)
+                
+                old_weightsConfig[p_idx] = weights
 
-                k_sumTrain = kernelMatrixSum(k_dataset_wrapper, weights, len(train_label), kind=kind)
+                k_sumTrain = kernelMatrixSum(k_train_list, weights, len(train_label))
 
-                similarity_grid[p_idx] = cortesAlignment(k_sumTrain,
-                                                         np.dot(train_label.reshape(-1,1), train_label.reshape(-1,1).T))
+                similarity_grid[p_idx] = cka.cortesAlignment(k_sumTrain, idealKernel)
 
             selected = np.argmax(similarity_grid)
 
             if similarity_grid[selected] > currentCA:
                 currentCA = similarity_grid[selected]
                 k_dataset_wrapper[kernel_idx]['kernel'].setParam(param_interval[selected])
-
-                # update the weights with the new configuration
-                k_train_list = getKernelList(k_dataset_wrapper)
-                weights = centeredKernelAlignment(k_train_list, train_label)
-
+                weights = old_weightsConfig[selected]
+                
                 if verbose: print('\t\tselected {} with sim: {}'.format(param_interval[selected], currentCA))
 
             else:
                 k_dataset_wrapper[kernel_idx]['kernel'].setParam(old_param)
+                weights = old_weightsConfig[-1]
                 if verbose: print('\t\tkept {} with sim: {}'.format(kernel.getParam(), currentCA))
 
     return k_dataset_wrapper
-"""
+
 # END SOLA AKW
 
 #-------------------------------------------------------
