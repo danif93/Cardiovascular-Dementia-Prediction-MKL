@@ -5,8 +5,6 @@ import quadprog as qp
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import normalize
 
-from sklearn.metrics.pairwise import linear_kernel, polynomial_kernel, rbf_kernel, laplacian_kernel, sigmoid_kernel
-
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LassoCV
 from sklearn.linear_model import ElasticNet
@@ -16,6 +14,8 @@ from queue import Queue
 
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.grid_search import GridSearchCV
+
+import KernelFile as kf
 
 #----------------------------------------
 # PREPROCESSING
@@ -86,7 +86,7 @@ def oneHotEncoder(v):
 def quadprog_solve_qp(P, q, G=None, h=None, A=None, b=None):
     qp_G = .5 * (P + P.T)   # make sure P is symmetric
     qp_a = -q
-    if A is not None:
+    if A != None:
         qp_C = -numpy.vstack([A, G]).T
         qp_b = -numpy.hstack([b, h])
         meq = A.shape[0]
@@ -144,7 +144,7 @@ class kernelMultiparameter: # interface class to simulate a kernel which can dea
         self.k_list = []
         
         for p in param:
-            self.k_list.append(kernel(X, K_type, p))
+            self.k_list.append(kf.kernel(X, K_type, p))
             
         self.K_list = []
         #print("kernelMultiparameter init ended")
@@ -206,66 +206,7 @@ class kernelMultiparameter: # interface class to simulate a kernel which can dea
             info.append(queue.get())
         """    
         return K_param
-            
-        
-        
-
-class kernel:
-    """linear_kernel, polynomial_kernel, rbf_kernel, laplacian_kernel, sigmoid_kernel"""
-
-    def __init__(self, X, K_type, param = None): #param = degree or sigma
-        
-        if not param: raise ArgumentExcpetion("Kernel parameter not set properly")
-
-        self.Xtr = X
-        self.K_type = K_type
-        self.param = param
-
-    def kernelMatrix(self, X):
-
-        if self.K_type == 'linear':
-            self.K = linear_kernel(self.Xtr, X) # np.dot(X, self.Xtr.T)
-            return  self.K
-
-        if self.K_type == 'polynomial':
-            self.K = polynomial_kernel(self.Xtr, X, degree=self.param) # np.power(np.dot(X, self.Xtr.T)+1, self.param)
-            return  self.K
-
-        if self.K_type == 'gaussian':
-            self.K = rbf_kernel(self.Xtr, X, gamma=self.param) # np.zeros((X.shape[0], self.Xtr.shape[0]))
-                                                               # for i, sample_tr in enumerate(self.Xtr):
-                                                               #   for j, sample in enumerate(X):
-                                                               #     d = np.linalg.norm(sample_tr-sample) ** 2
-                                                               #     self.K[j, i] = np.exp(-d/(2*self.param*self.param))
-            return  self.K
-        
-        if self.K_type == 'laplacian':
-            self.K = laplacian_kernel(self.Xtr, X, gamma=self.param)
-            return self.K
-            
-        if self.K_type == 'sigmoid':
-            self.K = sigmoid_kernel(self.Xtr, X, gamma=self.param)
-            return self.K
-        
-    
-
-    def getType(self):
-        return self.K_type
-
-    def getParam(self):
-        return self.param
-    
-    def setParam(self, param):
-        self.param = param
-        
-    def getMatrix(self):
-        return self.Xtr
-    
-    def getKernelMatrix(self):
-        return self.K
-    
-    
-    
+  
     
 # HARD CODED
     
@@ -336,7 +277,6 @@ class centeredKernelAlignment:
 
                 if j != 0:
                     M[i+j, i] = s
-
         return M
 
 
@@ -363,17 +303,15 @@ class centeredKernelAlignment:
         return num / np.linalg.norm(num)
 
 
-    def cortesAlignment(k1, k2):
+    def score(k1, k2):
         k1c = centeredKernelAlignment._centeredKernel(k1)
         k2c = centeredKernelAlignment._centeredKernel(k2)
 
         num = frobeniusInnerProduct(k1c, k2c)
         den = np.sqrt(frobeniusInnerProduct(k1c, k1c)*frobeniusInnerProduct(k2c, k2c))
         return num/den
-
-
     
-    
+
 # USEFUL CLASSSES
 
 #-------------------------------------------
@@ -381,49 +319,6 @@ class centeredKernelAlignment:
 # SOLA AKW pg 22-23 (Similarity Optimizing Linear Approach with Arbitrary Kernel Weights)
 # Cortes approach    
     
-    
-def centeredKernelAlignmentCV(dict_kernel_param, dataset_list, y): 
-    #dict_kernel_param = ['kernel_type'] -> param_list
-    
-    k_objects_list = []    # list of lists. every list is referred to a dataset and contains all the kernel object
-    K_list = [] # list of lists. the first entry is referred to the dataset & kernel type.
-                # the second is in the form [(kernel using param 1, param 1), (kernel using param 2, param 2), 3, ...]
-    for X in dataset_list:
-        k_objects_list_detaset = []
-        for dkp in dict_kernel_param.items():
-            k_objects_list_detaset.append(kernelMultiparameter(X, dkp[0], dkp[1]))
-            K_list.append(k_objects_list_detaset[-1].kernelMatrix(X))
-            
-        k_objects_list.append(k_objects_list_detaset)
-        
-    
-    
-    """              
-    print("getMatrices started")    
-    for k_objects_list_detaset in k_objects_list:
-        for k in k_objects_list_detaset:
-            K_list.append(k.getMatrices())
-    print("getMatrices ended") 
-    """        
-    # HARD CODED
-
-    #params = {"d0_1" : K_list[0][0], "d0_2": K_list[0][1], "d0_3": K_list[0][2], "d1_1": K_list[1][0],
-    #            "d1_2": K_list[1][1], "d1_3": K_list[1][2], "d2_1": K_list[2][0], "d2_2": K_list[2][1], "d2_3": K_list[2][2] }
-    
-    params = {"d0_1" : K_list[0][0], "d1_1": K_list[1][0],
-             "d1_2": K_list[1][1], "d1_3": K_list[1][2], "d2_1": K_list[2][0], "d2_2": K_list[2][1], "d2_3": K_list[2][2],
-             "estimator":centeredKernelAlignment()}
-    
-    print("grid search started")
-    #print(K_list[0][0])
-    gs = GridSearchCV(CA_Regressor_3D3K(), params)
-    gs.fit(np.dot(y.reshape(-1, 1), y.reshape(-1, 1).T))
-    print("grid search started")
-    return gs.predict(None), gs.score(None), gs.best_params_
-    
-    
-
-
 def parameterOptimization(k_dataset_wrapper, train_label, n_epoch=100, tol=0.01, verbose=False):
     
     idealKernel = train_label.reshape(-1,1).dot(train_label.reshape(-1,1).T)
@@ -512,9 +407,12 @@ class MKL_simpleSrola:
         self._y = y
         self._k_list = []
         for X in Xtr_list:
+            # k_list_dataset = [kernel(X, Ktype, v) for v in value for Ktype, value in self.Ktype_dict.items()]                
+            # self._k_list.append([kernel(X, Ktype, v) for v in value for Ktype, value in self.Ktype_dict.items()])
+
             k_list_dataset = []
             for Ktype, value in self.Ktype_dict.items():
-                k_list_dataset.append(kernel(X, Ktype, value))
+                k_list_dataset.append(kf.kernel(X, Ktype, value))
                 
             self._k_list.append(k_list_dataset)
 
@@ -543,8 +441,18 @@ class MKL_simpleSrola:
     def _learn(self, K_list):
         
         while True:
+            
+            
             #TODO compute quadprog_solve_qp imputs
-            alpha_list = quadprog_solve_qp() # TODO
+            
+            p = np.empty((len(self._y)),len(self._y))
+            for i in range(p.shape[0]):
+                for j in range(p.shape[1]):
+                    p[i,j] = self._y[i]*self._y[j]*sum([self.eta_[k_idx]*kern[i,j] for k_idx, kern in K_list])
+            
+            alpha_list = quadprog_solve_qp(p,) # TODO
+
+            
             partial_derivatives = self._computeDerivatives(K_list, alpha_list)
             ref_eta_index = np.argmax(self.eta_)
             partial_derivatives = np.asarray(self._computeMagnitude(partial_derivatives, ref_eta_index))
@@ -559,7 +467,7 @@ class MKL_simpleSrola:
         
         partial_derivatives = []
         for K in K_list:
-            grad = -0.5 * sum(alpha_i * alpha_j * K[i,j] for i, alpha_i in enumerate(alpha_list) for j, alpha_j in enumerate(alpha_list))
+            grad = -0.5 * sum([alpha_i * alpha_j * K[i,j] for i, alpha_i in enumerate(alpha_list) for j, alpha_j in enumerate(alpha_list)])
             partial_derivatives.append(grad)
             
         return partial_derivatives
