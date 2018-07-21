@@ -38,4 +38,4 @@ Thumbs.db
 
 # cache folders #
 .ipynb_checkpoints/
-.__pycache__/
+__pycache__/
