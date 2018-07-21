@@ -30,9 +30,9 @@ class myGridSearchCV:
                 self.configuration_list_ = [list(elem[0]+[elem[1]]) for elem in itertools.product(*[self.configuration_list_, [list(elem) for elem in itertools.product(*self.parameters_lists)]])]
         
         # list of kernels_wrappers. To each possible configuration of the hyperparameter a kernels_wrapper is given 
-        self.k_wrap_list_ = []
-        for config in self.configuration_list_:
-            self.k_wrap_list_.append(kernelWrapper(self.Xtr_list_, self.Ktype_list, config))
+        #self.k_wrap_list_ = []
+        #for config in self.configuration_list_:
+        #    self.k_wrap_list_.append(kernelWrapper(self.Xtr_list_, self.Ktype_list, config))
             
         return self
                 
@@ -44,38 +44,52 @@ class myGridSearchCV:
         performances = np.empty((self._fold, len(self.configuration_list_)))
         
         for fold_idx, (train_index, valid_index) in enumerate(kf.split(Xtr_list[0], self._y)):
+            
             if verbose: print("Fold no. {}".format(fold_idx))
             
+            self.train_list_ = [ Xtr[train_index] for Xtr in self.Xtr_list_]
+            self.valid_list_ = [ Xtr[train_index] for Xtr in self.Xtr_list_]
             train_list = [ Xtr[train_index] for Xtr in Xtr_list]
             valid_list = [ Xtr[valid_index] for Xtr in Xtr_list]
+            IK_tr = np.outer(self._y[train_index], self._y[train_index])
+            IK_val = np.outer(self._y[valid_index], self._y[train_index])
+            
+            # list of kernels_wrappers. To each possible configuration of the hyperparameter a kernels_wrapper is given 
+            self.k_wrap_list_ = []
+            for config in self.configuration_list_:
+                self.k_wrap_list_.append(kernelWrapper(self.train_list_, self.Ktype_list, config))
+                 
             
             # cycle through configurations
             for kw_idx, kw_wrap in enumerate(self.k_wrap_list_):
 
-                if verbose: print("\tComputing config no. {}: {}".format(kw_idx, kw_wrap.config))
+                #if verbose: print("\tComputing config no. {}: {}".format(kw_idx, kw_wrap.config))
 
                 # compute the list of kernels generated from the hyperparameter configuration at hand
                 kernelMatrix_list = kw_wrap.kernelMatrix(train_list).kernelMatrix_list_
 
                 # compute eta vector
-                if verbose: print("\t\tComputing eta for {}".format(kw_idx))
-                eta = self.estimator.computeEta(kernelMatrix_list, self.IK_)
+                #if verbose: print("\t\tComputing eta for {}".format(kw_idx))
+                eta = self.estimator.computeEta(kernelMatrix_list, IK_tr)
 
                 # compute k_eta (approximation) for the validation set
-                kw_wrap.kernelMatrix(valid_list)
+                kernelMatrix_list = kw_wrap.kernelMatrix(valid_list).kernelMatrix_list_
                 k_eta = np.zeros(kernelMatrix_list[0].shape)
                 for eta_i, Ki in zip(eta, kernelMatrix_list):
                     k_eta += eta_i * Ki
 
                 # compute performances estimation
-                performances[fold_idx, kw_idx] = self.estimator.score(k_eta, self.IK_)
-                if verbose: print("\t\tPerfomances computed for {}: {}".format(kw_idx, self.performances_[-1]))
+                performances[fold_idx, kw_idx] = self.estimator.score(k_eta, IK_val)
+                if verbose and (kw_idx+1) % 50 == 0: print("\t\tPerfomances computed for {}".format(kw_idx+1))
+                #if verbose: print("\t\tPerfomances computed for {}: {}".format(kw_idx, performances[-1]))
+
         
         # select the configuration with the highest alignment value across the whole validation procedure
         selected = np.argmax(np.mean(performances, axis=0))
         if verbose: print("Validation complete, config selected:{}".format(self.configuration_list_[selected]))
         # recompute the eta for the selected configuration
-        kernelMatrix_list = self.k_wrap_list_[selected].kernelMatrix(Xtr_list).kernelMatrix_list_
+        k_wrap_best = kernelWrapper(self.Xtr_list_, self.Ktype_list, self.configuration_list_[selected])
+        kernelMatrix_list = k_wrap_best.kernelMatrix(Xtr_list).kernelMatrix_list_
         eta = self.estimator.computeEta(kernelMatrix_list, self.IK_)
         # sum all the kernel matrix
         k_eta = np.zeros(kernelMatrix_list[0].shape)

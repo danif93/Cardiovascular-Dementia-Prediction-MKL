@@ -1,7 +1,7 @@
 from collections import Counter
 import numpy as np
 import math as mt
-import quadprog as qp
+#import quadprog as qp
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import normalize
 
@@ -13,7 +13,6 @@ from multiprocessing import Process
 from queue import Queue
 
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
-from sklearn.grid_search import GridSearchCV
 
 import KernelFile as kf
 
