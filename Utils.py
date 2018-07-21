@@ -1,5 +1,7 @@
 from collections import Counter
 import numpy as np
+import math as mt
+import pandas as pd
 #import quadprog as qp
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import normalize
@@ -64,6 +66,23 @@ def oneHotEncoder(v):
         binary.append(int(row))
 
     return np.asarray(binary)
+
+
+def centering(df, except_col): #to apply only on the training set
+
+    X = df.values
+
+    mean = np.mean(X, axis = 0)
+    Mean = np.empty(X.shape)
+    for row in Mean:
+        Mean[i,:] = mean
+
+    X_c = pd.DataFrame(X-Mean, index = df.index, columns = df.columns)
+
+    for col in except_col: #some columns maybe should not be centered
+        X_c[col] = df[col]
+
+    return mean, X_c,
 
 # END PREPROCESSING
 
