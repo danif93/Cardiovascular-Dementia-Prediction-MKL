@@ -1,7 +1,6 @@
 import numpy as np
 from KernelFile import kernelWrapper
 import itertools
-from operator import itemgetter
 from sklearn.model_selection import StratifiedKFold
 
 class myGridSearchCV:

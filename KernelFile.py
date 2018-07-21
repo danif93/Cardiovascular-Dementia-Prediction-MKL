@@ -39,13 +39,17 @@ class kernelWrapper:
             pred += np.sum(weighted_labeled_kernel, axis=0)
         pred = np.sign(pred)
         return pred
-    """  
-    def printConfig(self)
-        strOut = ""
-        for kernel in self._k_list:
-            strOut += kernel.K_type
-    """            
 
+    def printConfig(self):
+        strOut = ""
+        for k_idx, kernel in enumerate(self._k_list):
+            if k_idx%len(self.Xtr_list)==0 and k_idx!=0: strOut+="]\n"
+            if k_idx%len(self.Xtr_list)==0: strOut+="["
+            strOut += kernel.K_type+":"+str(kernel.param)+", "
+        return strOut+"]\n"
+
+
+            
 class kernel:
 
     def __init__(self, X, K_type, param = None): #param = degree or sigma
