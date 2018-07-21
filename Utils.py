@@ -134,135 +134,22 @@ def kernelMatrixSum(kernel_list, weights, size):
 
 # USEFUL CLASSSES
 
-class kernelMultiparameter: # interface class to simulate a kernel which can deal with an interval of feasible parameters
-    
-    def __init__(self, X, K_type, param, dataset_name = 'D0'): #param = degree or sigma
-
-        self.Xtr = X
-        self.K_type = K_type
-        self.dataset_name = dataset_name
-        self.k_list = []
-        
-        for p in param:
-            self.k_list.append(kf.kernel(X, K_type, p))
-            
-        self.K_list = []
-        #print("kernelMultiparameter init ended")
-
-    
-    #def kM_child(k, X): # porcess function of kernelMatrix
-    #    k.kernelMatrix(X)
-        
-    def kernelMatrix(self, X): # ask to all the kernel to compute the similarity matrix in parallel
-        
-        K_param = []
-        
-        for i, k in enumerate(self.k_list):
-            """
-            proc = Process(target=self.kM_child, args=((k, X),))
-            jobs.append(proc)
-            proc.start()
-            """
-            
-            #print("learning and gettnig matrix {}".format(i))
-            K = k.kernelMatrix(X)
-            param = k.getParam()
-            K_param.append((K, param))
-        """
-        for proc in jobs:
-            proc.join()
-        """
-        return K_param
-    """    
-
-    def gKM_child(k, queue):
-        
-        K = k.getKernelMatrix()
-        param = k.getParam()
-        queue.put((K, param))
-    """
-    
-    def getKernelMatrices(self):
-        
-        #queue = Queue()
-        K_param = []
-        for i, k in enumerate(self.k_list):
-            """
-            proc = Process(target=gKM_child, args=((k, queue),))
-            jobs.append(proc)
-            proc.start()
-            """
-            print("\t Getting matrix {}".format(i))
-            K = k.getKernelMatrix()
-            param = k.getParam()
-            K_param.append((K, param))
-        """
-        for proc in jobs:
-            proc.join()
-            
-        info = []
-        
-        while ~queue.empty():
-            info.append(queue.get())
-        """    
-        return K_param
-  
-    
-# HARD CODED
-    
-class CA_Regressor_3D3K(BaseEstimator, RegressorMixin):
-    
-    def __init__(self, d0_1 = (np.zeros((2,2)), 0), #d0_2 = (np.zeros((2,2)), 0), d0_3 = (np.zeros((2,2)), 0),
-                       d1_1 = (np.zeros((2,2)), 0), d1_2 = (np.zeros((2,2)), 0), d1_3 = (np.zeros((2,2)), 0),
-                       d2_1 = (np.zeros((2,2)), 0), d2_2 = (np.zeros((2,2)), 0), d2_3 = (np.zeros((2,2)), 0), estimator = None):
-        
-        print("d01")
-        print(d0_1)
-        
-        if estimator == None:
-            raise ValueError("estimator cannot be None")
-            
-        self.estimator = estimator
-        self.d0_1 = d0_1
-        #self.d0_2 = d0_2
-        #self.d0_3 = d0_3
-        self.d1_1 = d1_1
-        self.d1_2 = d1_2
-        self.d1_3 = d1_3
-        self.d2_1 = d2_1
-        self.d2_2 = d2_2
-        self.d2_3 = d2_3
-        
-    def fit(IK, y = None):
-        
-        self.IK_ = IK
-        self.K_list_ = [self.d0_1[0], #self.d0_2[0], self.d0_3[0], 
-                        self.d1_1[0], self.d1_2[0], self.d1_3[0], self.d2_1[0], self.d2_2[0], self.d2_3[0]]
-        
-        return self
-
-    
-    def predict(self, K_list, y=None):
-        
-        return self.estimator.computeEta(self.K_list_ if K_list == None else K_list, self.IK_)
-
-    
-    def score(self, K_list, y=None):
-        
-        return self.estimator.cortesAlignment(self.K_list_ if K_list == None else K_list, self.IK_)
-    
-   
-        
-
 class centeredKernelAlignment:
 
     def _centeredKernel(K): # K^c
-
-        s = K.shape
-        N = s[0]
-        One = np.ones((s))
-
-        return K - 1/N * np.dot(np.dot(One, One.T), K) - 1/N * np.dot(np.dot(K, One), One.T) + 1/(N*N) * np.dot(np.dot(np.dot(np.dot(One.T, K), One), One), One.T)
+        Nt = K.shape[0]
+        Ns = K.shape[1]
+        oneNt = np.ones((Nt)).reshape(-1,1)
+        oneNs = np.ones((Ns)).reshape(-1,1)
+        oneNt_mat = np.outer(oneNt, oneNt)
+        oneNs_mat = np.outer(oneNs, oneNs)
+        composite = np.outer(oneNt, oneNs)
+        
+        add1 = 1/Nt * np.dot(oneNt_mat, K)
+        add2 = 1/Nt * np.dot(K, oneNs_mat)
+        add3 = 1/(Nt*Nt) * np.dot(np.dot(oneNt.T, K), oneNs) * composite
+        
+        return K - add1 - add2 + add3
 
 
     def _kernelSimilarityMatrix(K_list): # M

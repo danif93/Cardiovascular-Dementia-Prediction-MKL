@@ -17,14 +17,15 @@ class kernelWrapper:
                 self._k_list.append(kernel(Xtr, Ktype, config[dataset_index][kernel_index]))
                 
     def kernelMatrix(self, X_list):
-        
-        if len(X_list) != len(self.Xtr_list):
-            raise Exception("X_list and Xtr_list length differ")
+        num_datasets = len(X_list)
+        if num_datasets != len(self.Xtr_list):
+            raise Exception("X_list and Xtr_list length differs: #datasets not the same")
             
         self.kernelMatrix_list_ = []
+            
         for dataset_index, X in enumerate(X_list):
             for kernel_index, Ktype in enumerate(self.Ktype_list):
-                    self.kernelMatrix_list_.append(self._k_list[kernel_index * (dataset_index + 1)].kernelMatrix(X))
+                self.kernelMatrix_list_.append(self._k_list[kernel_index+dataset_index*len(self.Ktype_list)].kernelMatrix(X))
         return self
     """  
     def printConfig(self)
