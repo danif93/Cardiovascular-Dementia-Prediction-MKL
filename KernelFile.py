@@ -27,6 +27,18 @@ class kernelWrapper:
             for kernel_index, Ktype in enumerate(self.Ktype_list):
                 self.kernelMatrix_list_.append(self._k_list[kernel_index+dataset_index*len(self.Ktype_list)].kernelMatrix(X))
         return self
+    
+    def predict(self, Xts_list, weights, tr_label):
+        
+        k_test_list = self.kernelMatrix(Xts_list).kernelMatrix_list_
+        
+        pred = np.zeros(len(Xts_list[0]))
+        
+        for k_test, w in zip(k_test_list, weights):
+            weighted_labeled_kernel = np.multiply(w*k_test.T, tr_label).T
+            pred += np.sum(weighted_labeled_kernel, axis=0)
+        pred = np.sign(pred)
+        return pred
     """  
     def printConfig(self)
         strOut = ""
@@ -71,18 +83,14 @@ class kernel:
     def getType(self):
         return self.K_type
 
-
     def getParam(self):
         return self.param
-    
 
     def setParam(self, param):
         self.param = param
-        
 
     def getMatrix(self):
         return self.Xtr
-    
 
     def getKernelMatrix(self):
         return self.K

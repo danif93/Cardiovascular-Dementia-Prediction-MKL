@@ -45,10 +45,10 @@ class myGridSearchCV:
         
         for fold_idx, (train_index, valid_index) in enumerate(kf.split(Xtr_list[0], self._y)):
             
-            if verbose: print("Fold no. {}".format(fold_idx))
+            if verbose: print("Fold no. {}".format(fold_idx+1))
             
             self.train_list_ = [ Xtr[train_index] for Xtr in self.Xtr_list_]
-            self.valid_list_ = [ Xtr[train_index] for Xtr in self.Xtr_list_]
+            self.valid_list_ = [ Xtr[valid_index] for Xtr in self.Xtr_list_]
             train_list = [ Xtr[train_index] for Xtr in Xtr_list]
             valid_list = [ Xtr[valid_index] for Xtr in Xtr_list]
             IK_tr = np.outer(self._y[train_index], self._y[train_index])
@@ -87,14 +87,16 @@ class myGridSearchCV:
         # select the configuration with the highest alignment value across the whole validation procedure
         selected = np.argmax(np.mean(performances, axis=0))
         if verbose: print("Validation complete, config selected:{}".format(self.configuration_list_[selected]))
+            
         # recompute the eta for the selected configuration
         k_wrap_best = kernelWrapper(self.Xtr_list_, self.Ktype_list, self.configuration_list_[selected])
         kernelMatrix_list = k_wrap_best.kernelMatrix(Xtr_list).kernelMatrix_list_
         eta = self.estimator.computeEta(kernelMatrix_list, self.IK_)
+        
         # sum all the kernel matrix
         k_eta = np.zeros(kernelMatrix_list[0].shape)
         for eta_i, Ki in zip(eta, kernelMatrix_list):
             k_eta += eta_i * Ki
         
-        return (self.estimator.score(k_eta, self.IK_), self.configuration_list_[selected], eta)
+        return (self.estimator.score(k_eta, self.IK_), k_wrap_best, eta)
             
