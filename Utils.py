@@ -4,7 +4,6 @@ import math as mt
 import pandas as pd
 #import quadprog as qp
 from sklearn.preprocessing import LabelBinarizer
-from sklearn.preprocessing import normalize
 
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LassoCV
@@ -113,9 +112,6 @@ def frobeniusInnerProduct(A, B):
     B = B.ravel()
     return np.dot(A, B)
 
-
-def normalization(X, norm = 'l2'):
-    return normalize(X, norm = norm)
 
 # END GENERAL UTIL FUNCTIONS
 

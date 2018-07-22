@@ -1,5 +1,7 @@
 import numpy as np
 import Utils as ut
+from myLasso import Lasso
+from sklearn.preprocessing import normalize
 
 class centeredKernelAlignment:
 
@@ -44,22 +46,31 @@ class centeredKernelAlignment:
         return a
 
 
-    def computeEta(K_list, IK):
+    def computeEta(K_list, IK, sparsity = 0):
+        
+        if sparsity != 0:
+            sp = Lasso(alpha = sparsity)
+            num = normalize(sp.fit(K_list, IK).coef_)
+            
+        else:
 
-        K_c_list = [centeredKernelAlignment._centeredKernel(K) for K in K_list]
+            K_c_list = [centeredKernelAlignment._centeredKernel(K) for K in K_list]
 
-        M = centeredKernelAlignment._kernelSimilarityMatrix(K_c_list)
+            M = centeredKernelAlignment._kernelSimilarityMatrix(K_c_list)
 
-        a = centeredKernelAlignment._idealSimilarityVector(K_c_list, IK)
+            a = centeredKernelAlignment._idealSimilarityVector(K_c_list, IK)
 
-        num = np.dot(np.linalg.inv(M), a)
+            num = np.dot(np.linalg.inv(M), a)
 
         return num / np.linalg.norm(num)
 
 
-    def score(k1, k2):
+    def score(k1, k2, ideal = True):
         k1c = centeredKernelAlignment._centeredKernel(k1)
-        k2c = centeredKernelAlignment._centeredKernel(k2)
+        if ideal:
+            k2c = k2
+        else:
+            k2c = centeredKernelAlignment._centeredKernel(k2)
 
         num = ut.frobeniusInnerProduct(k1c, k2c)
         den = np.sqrt(ut.frobeniusInnerProduct(k1c, k1c)*ut.frobeniusInnerProduct(k2c, k2c))

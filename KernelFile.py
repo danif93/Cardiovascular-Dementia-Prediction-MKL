@@ -1,5 +1,5 @@
 import numpy as np
-
+from sklearn.linear_model import Lasso
 from sklearn.metrics.pairwise import linear_kernel, polynomial_kernel, rbf_kernel, laplacian_kernel, sigmoid_kernel
 
 
@@ -40,6 +40,18 @@ class kernelWrapper:
         pred = np.sign(pred)
         return pred
 
+    def getConfig(self):
+        
+        config = {}
+        for k in self._k_list:
+            try:
+                config[k.K_type].append(k.param)
+            except:
+                config[k.K_type] = []
+                config[k.K_type].append(k.param)
+                
+        return config
+        
     def printConfig(self):
         strOut = ""
         for k_idx, kernel in enumerate(self._k_list):
@@ -59,11 +71,22 @@ class kernel:
         self.Xtr = X
         self.K_type = K_type
         self.param = param
+        if K_type == 'linear':
+            self_mu = None
         
 
-    def kernelMatrix(self, X):
+    def kernelMatrix(self, X, y = None):
 
         if self.K_type == 'linear':
+            
+            if y != None:
+                if self.mu == None:
+                    reg = Lasso(self.param)
+                    self_mu = reg.fit(X, y).coef_
+                    self.Xtr = self.Xtr[:, mp.where(self_mu != 0)]
+
+                self.X = self.X[:, mp.where(self_mu != 0)]
+                    
             self.K = linear_kernel(self.Xtr, X)
             return  self.K
 
