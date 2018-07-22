@@ -5,12 +5,13 @@ from sklearn.model_selection import StratifiedKFold
 
 class myGridSearchCV:
     
-    def __init__(self, estimator, param_grid, fold = 5):
+    def __init__(self, estimator, param_grid, fold = 5, sparsity = 0):
         
         self.estimator = estimator
         self.Ktype_list = param_grid.keys()
         self.parameters_lists = param_grid.values()
         self._fold = fold
+        self.sparsity = sparsity
        
     
     def fit(self, Xtr_list, y):
@@ -69,7 +70,7 @@ class myGridSearchCV:
 
                 # compute eta vector
                 #if verbose: print("\t\tComputing eta for {}".format(kw_idx))
-                eta = self.estimator.computeEta(kernelMatrix_list, IK_tr, sparsity = 0)
+                eta = self.estimator.computeEta(kernelMatrix_list, IK_tr, sparsity = self.sparsity)
 
                 # compute k_eta (approximation) for the validation set
                 kernelMatrix_list = kw_wrap.kernelMatrix(valid_list).kernelMatrix_list_
@@ -90,7 +91,7 @@ class myGridSearchCV:
         # recompute the eta for the selected configuration
         k_wrap_best = kernelWrapper(self.Xtr_list_, self.Ktype_list, self.configuration_list_[selected])
         kernelMatrix_list = k_wrap_best.kernelMatrix(Xtr_list).kernelMatrix_list_
-        eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, sparsity = 0)
+        eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, sparsity = self.sparsity)
         
         # sum all the kernel matrix
         k_eta = np.zeros(kernelMatrix_list[0].shape)

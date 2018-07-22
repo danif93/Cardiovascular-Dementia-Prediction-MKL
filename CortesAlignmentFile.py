@@ -1,7 +1,6 @@
 import numpy as np
 import Utils as ut
 from myLasso import Lasso
-from sklearn.preprocessing import normalize
 
 class centeredKernelAlignment:
 
@@ -50,7 +49,7 @@ class centeredKernelAlignment:
         
         if sparsity != 0:
             sp = Lasso(alpha = sparsity)
-            num = normalize(sp.fit(K_list, IK).coef_)
+            eta = sp.fit(K_list, IK).coef_
             
         else:
 
@@ -60,9 +59,9 @@ class centeredKernelAlignment:
 
             a = centeredKernelAlignment._idealSimilarityVector(K_c_list, IK)
 
-            num = np.dot(np.linalg.inv(M), a)
+            eta = np.dot(np.linalg.inv(M), a)
 
-        return num / np.linalg.norm(num)
+        return eta / np.linalg.norm(eta)
 
 
     def score(k1, k2, ideal = True):
