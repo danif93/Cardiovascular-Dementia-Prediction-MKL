@@ -28,7 +28,7 @@ class kernelWrapper:
                 self.kernelMatrix_list_.append(self._k_list[kernel_index+dataset_index*len(self.Ktype_list)].kernelMatrix(X))
         return self
     
-    def predict(self, Xts_list, weights, tr_label):
+    def predict(self, Xts_list, weights, tr_label): #TODO make it for regression
         
         k_test_list = self.kernelMatrix(Xts_list).kernelMatrix_list_
         
@@ -39,6 +39,42 @@ class kernelWrapper:
             pred += np.sum(weighted_labeled_kernel, axis=0)
         pred = np.sign(pred)
         return pred
+    
+    def accuracy(self, Xts_list, weights, tr_label, test_labels, test_pred = None):
+        
+        if test_pred == None:
+            test_pred = self.predict(Xts_list, weights, tr_label)
+        return np.mean(np.absolute(test_pred-test_labels))/2
+    
+    def precision(self, Xts_list, weights, tr_label, test_labels, test_pred = None):
+        
+        if test_pred == None:
+            test_pred = self.predict(Xts_list, weights, tr_label)
+        
+        s = test_pred + test_labels
+        
+        if np.where(s == 2) == np.asarray([]):
+            return 0
+        
+        d = test_pred - test_labels
+        TP = len(np.where(s == 2))
+        FP = len(np.where(d == 2))
+        return TP/(TP+FP)
+
+    def recall(self, Xts_list, weights, tr_label, test_labels, test_pred = None):
+        
+        if test_pred == None:
+            test_pred = self.predict(Xts_list, weights, tr_label)
+            
+        s = test_pred + test_labels
+        
+        if np.where(s == 2) == np.asarray([]):
+            return 0
+        
+        d = test_pred - test_labels
+        TP = len(np.where(s == 2))
+        FN = len(np.where(d == -2))
+        return TP/(TP+FN)
 
     def getConfig(self):
         
