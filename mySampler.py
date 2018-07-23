@@ -29,7 +29,7 @@ class mySampler:
                 if verbose: print("\tWorking on config {} of {}: {}".format(d_idx+1, len(kernelDict_list), kernelDict))
 
                 gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, sparsity = self.sparsity).fit(trainSet_list, trainLabel)
-                sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose=False)
+                sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose = verbose) # it was false
                 sel_accuracy = accuracy_score(testLabel, sel_kWrapp.predict(testSet_list, weights, trainLabel))
 
                 bestOverDict.append({"CA":sel_CA, "Accuracy":sel_accuracy, "config":sel_kWrapp, "eta":weights})
@@ -65,7 +65,7 @@ class mySampler:
 
                 print("\tComputing performances using the merged dictionary")
                 gs = mgs.myGridSearchCV(estimator, best_kernel_dict, fold = valid_fold, sparsity = self.sparsity).fit(trainSet_list, trainLabel)
-                sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose=True)
+                sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose= verbose) #it was true
                 sel_accuracy = accuracy_score(testLabel, sel_kWrapp.predict(testSet_list, weights, trainLabel))
                 global_best.append({"CA":sel_CA, "Accuracy":sel_accuracy, "config":sel_kWrapp})
                 

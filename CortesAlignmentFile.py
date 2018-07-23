@@ -45,10 +45,10 @@ class centeredKernelAlignment:
         return a
 
 
-    def computeEta(K_list, IK, sparsity = 0):
+    def computeEta(K_list, IK, sparsity = 0, verbose = False):
         
         if sparsity != 0:
-            sp = Lasso(alpha = sparsity)
+            sp = Lasso(alpha = sparsity, verbose = verbose)
             eta = sp.fit(K_list, IK).coef_
             
         else:

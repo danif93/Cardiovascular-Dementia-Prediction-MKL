@@ -70,7 +70,7 @@ class myGridSearchCV:
 
                 # compute eta vector
                 #if verbose: print("\t\tComputing eta for {}".format(kw_idx))
-                eta = self.estimator.computeEta(kernelMatrix_list, IK_tr, sparsity = self.sparsity)
+                eta = self.estimator.computeEta(kernelMatrix_list, IK_tr, sparsity = self.sparsity, verbose = verbose)
 
                 # compute k_eta (approximation) for the validation set
                 kernelMatrix_list = kw_wrap.kernelMatrix(valid_list).kernelMatrix_list_
@@ -91,7 +91,7 @@ class myGridSearchCV:
         # recompute the eta for the selected configuration
         k_wrap_best = kernelWrapper(self.Xtr_list_, self.Ktype_list, self.configuration_list_[selected])
         kernelMatrix_list = k_wrap_best.kernelMatrix(Xtr_list).kernelMatrix_list_
-        eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, sparsity = self.sparsity)
+        eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, sparsity = self.sparsity, verbose = verbose)
         
         # sum all the kernel matrix
         k_eta = np.zeros(kernelMatrix_list[0].shape)

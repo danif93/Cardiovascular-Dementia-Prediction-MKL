@@ -28,17 +28,27 @@ class kernelWrapper:
                 self.kernelMatrix_list_.append(self._k_list[kernel_index+dataset_index*len(self.Ktype_list)].kernelMatrix(X))
         return self
     
-    def predict(self, Xts_list, weights, tr_label): #TODO make it for regression
+    def predict(self, Xts_list, weights, tr_label, Ptype = 'classification'):
         
         k_test_list = self.kernelMatrix(Xts_list).kernelMatrix_list_
         
-        pred = np.zeros(len(Xts_list[0]))
+        K_eta = sum(eta*X for eta, X in zip(weights, k_test_list))        
         
-        for k_test, w in zip(k_test_list, weights):
-            weighted_labeled_kernel = np.multiply(w*k_test.T, tr_label).T
-            pred += np.sum(weighted_labeled_kernel, axis=0)
-        pred = np.sign(pred)
-        return pred
+            
+        if Ptype == 'classification':
+            pred = np.zeros(k_test_list[0].shape)
+            for idx, row in enumerate(K_eta):
+                pred[idx, :] += np.multiply(row, tr_label)
+                
+            return np.sign(np.sum(pred, axis = 1))
+        
+        else:
+            pred = np.zeros(k_test_list[0].shape[0])
+            for idx, row in enumerate(K_eta):
+                pred[idx, :] += np.sum(np.multiply(row, tr_label))/np.sum(row)
+                
+            return pred
+        
     
     def accuracy(self, Xts_list, weights, tr_label, test_labels, test_pred = None):
         
@@ -123,23 +133,23 @@ class kernel:
 
                 self.X = self.X[:, mp.where(self_mu != 0)]
                     
-            self.K = linear_kernel(self.Xtr, X)
+            self.K = linear_kernel(X,self.Xtr)
             return  self.K
 
         if self.K_type == 'polynomial':
-            self.K = polynomial_kernel(self.Xtr, X, degree=self.param)
+            self.K = polynomial_kernel(X, self.Xtr, degree=self.param)
             return  self.K
 
         if self.K_type == 'gaussian':
-            self.K = rbf_kernel(self.Xtr, X, gamma=self.param)
+            self.K = rbf_kernel(X, self.Xtr, gamma=self.param)
             return  self.K
         
         if self.K_type == 'laplacian':
-            self.K = laplacian_kernel(self.Xtr, X, gamma=self.param)
+            self.K = laplacian_kernel(X, self.Xtr, gamma=self.param)
             return self.K
             
         if self.K_type == 'sigmoid':
-            self.K = sigmoid_kernel(self.Xtr, X, gamma=self.param)
+            self.K = sigmoid_kernel(X, self.Xtr, gamma=self.param)
             return self.K
         
     
