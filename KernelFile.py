@@ -50,13 +50,13 @@ class kernelWrapper:
             return pred
         
     
-    def accuracy(self, Xts_list, weights, tr_label, test_labels, test_pred = None):
+    def accuracy(self, Xts_list = None, weights = None, tr_label = None, test_labels, test_pred = None):
         
         if test_pred == None:
             test_pred = self.predict(Xts_list, weights, tr_label)
         return np.mean(np.absolute(test_pred-test_labels))/2
     
-    def precision(self, Xts_list, weights, tr_label, test_labels, test_pred = None):
+    def precision(self, Xts_list = None, weights = None, tr_label = None, test_labels, test_pred = None):
         
         if test_pred == None:
             test_pred = self.predict(Xts_list, weights, tr_label)
@@ -71,7 +71,7 @@ class kernelWrapper:
         FP = len(np.where(d == 2))
         return TP/(TP+FP)
 
-    def recall(self, Xts_list, weights, tr_label, test_labels, test_pred = None):
+    def recall(self, Xts_list = None, weights = None, tr_label = None, test_labels, test_pred = None):
         
         if test_pred == None:
             test_pred = self.predict(Xts_list, weights, tr_label)

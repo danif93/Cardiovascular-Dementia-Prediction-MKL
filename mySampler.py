@@ -30,9 +30,13 @@ class mySampler:
 
                 gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, sparsity = self.sparsity).fit(trainSet_list, trainLabel)
                 sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose = verbose) # it was false
-                sel_accuracy = accuracy_score(testLabel, sel_kWrapp.predict(testSet_list, weights, trainLabel))
+                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel)
+                #sel_accuracy = accuracy_score(testLabel, pred)
+                sel_accuracy = sel_kWrapp.accuracy(testLabel, test_pred = pred)
+                precision = sel_kWrapp.precision(testLabel, test_pred = pred)
+                recall = sel_kWrapp.recall(testLabel, test_pred = pred)
 
-                bestOverDict.append({"CA":sel_CA, "Accuracy":sel_accuracy, "config":sel_kWrapp, "eta":weights})
+                bestOverDict.append({"CA":sel_CA, "Accuracy":sel_accuracy, "Precision":precision, "Recall":recall, "config":sel_kWrapp, "eta":weights})
 
             if verbose:
                 print("\tResult of {}:".format(split_idx))
