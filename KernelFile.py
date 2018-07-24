@@ -2,30 +2,34 @@ import numpy as np
 from sklearn.linear_model import Lasso
 from sklearn.metrics.pairwise import linear_kernel, polynomial_kernel, rbf_kernel, laplacian_kernel, sigmoid_kernel
 
+from sklearn.preprocessing import normalize
+
 
 class kernelWrapper:
     
-    def __init__(self, Xtr_list, Ktype_list, config):
+    def __init__(self, Xtr_list, Ktype_list, config, normalize = False):
                 
         self.Xtr_list = Xtr_list
         self.Ktype_list = Ktype_list
         self.config = config
+        self.normalize = normalize
         
         self._k_list = []
         for dataset_index, Xtr in enumerate(Xtr_list):
             for kernel_index, Ktype in enumerate(Ktype_list):
-                self._k_list.append(kernel(Xtr, Ktype, config[dataset_index][kernel_index]))
+                self._k_list.append(kernel(Xtr, Ktype, config[dataset_index][kernel_index], normalize = self.normalize))
                 
     def kernelMatrix(self, X_list):
         num_datasets = len(X_list)
         if num_datasets != len(self.Xtr_list):
-            raise Exception("X_list and Xtr_list length differs: #datasets not the same")
+            raise Exception("X_list and Xtr_list length differs: # datasets not the same")
             
         self.kernelMatrix_list_ = []
             
         for dataset_index, X in enumerate(X_list):
             for kernel_index, Ktype in enumerate(self.Ktype_list):
                 self.kernelMatrix_list_.append(self._k_list[kernel_index+dataset_index*len(self.Ktype_list)].kernelMatrix(X))
+                    
         return self
     
     def predict(self, Xts_list, weights, tr_label, Ptype = 'classification'):
@@ -45,18 +49,18 @@ class kernelWrapper:
         else:
             pred = np.zeros(k_test_list[0].shape[0])
             for idx, row in enumerate(K_eta):
-                pred[idx, :] += np.sum(np.multiply(row, tr_label))/np.sum(row)
+                pred[idx, :] += np.dot(row, tr_label)/np.sum(row)
                 
             return pred
         
     
-    def accuracy(self, Xts_list = None, weights = None, tr_label = None, test_labels, test_pred = None):
+    def accuracy(self, test_labels, Xts_list = None, weights = None, tr_label = None, test_pred = None):
         
         if test_pred == None:
             test_pred = self.predict(Xts_list, weights, tr_label)
         return np.mean(np.absolute(test_pred-test_labels))/2
     
-    def precision(self, Xts_list = None, weights = None, tr_label = None, test_labels, test_pred = None):
+    def precision(self, test_labels, Xts_list = None, weights = None, tr_label = None, test_pred = None):
         
         if test_pred == None:
             test_pred = self.predict(Xts_list, weights, tr_label)
@@ -71,7 +75,7 @@ class kernelWrapper:
         FP = len(np.where(d == 2))
         return TP/(TP+FP)
 
-    def recall(self, Xts_list = None, weights = None, tr_label = None, test_labels, test_pred = None):
+    def recall(self, test_labels, Xts_list = None, weights = None, tr_label = None, test_pred = None):
         
         if test_pred == None:
             test_pred = self.predict(Xts_list, weights, tr_label)
@@ -110,13 +114,14 @@ class kernelWrapper:
             
 class kernel:
 
-    def __init__(self, X, K_type, param = None): #param = degree or sigma
+    def __init__(self, X, K_type, param = None, normalize = False): #param = degree or sigma
         
         if param==None: raise ValueError("Kernel parameter not set properly")
 
         self.Xtr = X
         self.K_type = K_type
         self.param = param
+        self.normalize = normalize
         if K_type == 'linear':
             self_mu = None
         
@@ -127,29 +132,48 @@ class kernel:
             
             if y != None:
                 if self.mu == None:
-                    reg = Lasso(self.param)
+                    reg = Lasso(self.param) #TODO change with a model for classification and let the possibility to specify regression or classification
                     self_mu = reg.fit(X, y).coef_
                     self.Xtr = self.Xtr[:, mp.where(self_mu != 0)]
 
                 self.X = self.X[:, mp.where(self_mu != 0)]
-                    
-            self.K = linear_kernel(X,self.Xtr)
+            
+            if self.normalize:
+                self.K = normalize(linear_kernel(X,self.Xtr))
+            else:
+                self.K = linear_kernel(X,self.Xtr)
+                
             return  self.K
 
         if self.K_type == 'polynomial':
-            self.K = polynomial_kernel(X, self.Xtr, degree=self.param)
+            if self.normalize:
+                self.K = normalize(polynomial_kernel(X, self.Xtr, degree=self.param))
+            else:
+                self.K = polynomial_kernel(X, self.Xtr, degree=self.param)
+                
             return  self.K
 
         if self.K_type == 'gaussian':
-            self.K = rbf_kernel(X, self.Xtr, gamma=self.param)
+            if self.normalize:
+                self.K = normalize(rbf_kernel(X, self.Xtr, gamma=self.param))
+            else:
+                self.K = rbf_kernel(X, self.Xtr, gamma=self.param)
+                
             return  self.K
         
         if self.K_type == 'laplacian':
-            self.K = laplacian_kernel(X, self.Xtr, gamma=self.param)
+            if self.normalize:
+                self.K = normalize(laplacian_kernel(X, self.Xtr, gamma=self.param))
+            else:
+                self.K = laplacian_kernel(X, self.Xtr, gamma=self.param)
+                
             return self.K
             
         if self.K_type == 'sigmoid':
-            self.K = sigmoid_kernel(X, self.Xtr, gamma=self.param)
+            if self.normalize:
+                self.K = normalize(sigmoid_kernel(X, self.Xtr, gamma=self.param))
+            else:
+                self.K = sigmoid_kernel(X, self.Xtr, gamma=self.param)
             return self.K
         
     

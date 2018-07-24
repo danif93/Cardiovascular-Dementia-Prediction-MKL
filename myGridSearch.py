@@ -5,13 +5,14 @@ from sklearn.model_selection import StratifiedKFold
 
 class myGridSearchCV:
     
-    def __init__(self, estimator, param_grid, fold = 5, sparsity = 0):
+    def __init__(self, estimator, param_grid, fold = 5, sparsity = 0, normalize_kernels = False):
         
         self.estimator = estimator
         self.Ktype_list = param_grid.keys()
         self.parameters_lists = param_grid.values()
         self._fold = fold
         self.sparsity = sparsity
+        self.normalize_kernels = normalize_kernels
        
     
     def fit(self, Xtr_list, y):
@@ -57,7 +58,7 @@ class myGridSearchCV:
             # list of kernels_wrappers. To each possible configuration of the hyperparameter a kernels_wrapper is given 
             self.k_wrap_list_ = []
             for config in self.configuration_list_:
-                self.k_wrap_list_.append(kernelWrapper(self.train_list_, self.Ktype_list, config))
+                self.k_wrap_list_.append(kernelWrapper(self.train_list_, self.Ktype_list, config, normalize = self.normalize_kernels))
                  
             
             # cycle through configurations
@@ -89,7 +90,7 @@ class myGridSearchCV:
         if verbose: print("Validation complete, config selected:{}".format(self.configuration_list_[selected]))
             
         # recompute the eta for the selected configuration
-        k_wrap_best = kernelWrapper(self.Xtr_list_, self.Ktype_list, self.configuration_list_[selected])
+        k_wrap_best = kernelWrapper(self.Xtr_list_, self.Ktype_list, self.configuration_list_[selected], normalize = self.normalize_kernels)
         kernelMatrix_list = k_wrap_best.kernelMatrix(Xtr_list).kernelMatrix_list_
         eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, sparsity = self.sparsity, verbose = verbose)
         
