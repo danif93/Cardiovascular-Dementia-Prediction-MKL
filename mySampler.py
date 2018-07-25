@@ -7,13 +7,14 @@ import myGridSearch as mgs
 
 class mySampler:
     def __init__(self, n_splits=3, test_size=.25, merging = False, sparsity = 0, normalize_kernels = False):
-        self._sampler = StratifiedShuffleSplit(n_splits=n_splits, test_size=test_size)
+        self._sampler = StratifiedShuffleSplit(n_splits=n_splits, test_size=test_size, centering = False)
         self.merging = merging
         self.sparsity = sparsity
         self.normalize_kernels = normalize_kernels
+        self.centering = centering
         
-    def sample(self, kernelDict_list, estimator, X_list, y, valid_fold = 3, verbose=False):
-#kernelDict_list: [{'linear':[0],'polynomial':[2,5],'gaussian':[.1,.5]},{'linear':[0],'polynomial':[7,10],'gaussian':[.7,1]}, ...]
+    def sample(self, kernelDict_list, estimator, X_list, y, valid_fold = 3, verbose=False, exclusion_list = None):
+                # exclusion_list in the form list of lists, one per dataset
 
         global_best = []
 
@@ -23,7 +24,26 @@ class mySampler:
             testSet_list = [X[test_idx] for X in X_list]
             trainLabel = y[train_idx]
             testLabel = y[test_idx]
-
+            
+            #------------------------------------------------
+            # CENTERING
+            
+            if self.centering == True:
+                if exclusion_list is not None:
+                    scale_list = [centering_rescaling(X, exc) for X, exc in zip(trainSet_list, exclusion_list)]
+                else:
+                    scale_list = [centering_rescaling(X) for X in trainSet_list]
+            
+            trianSet_list = []
+            new_ts = []
+            for Xts, scale in zip(testSet_list, scale_list):
+                new_ts.append(np.divide(Xts-scale[0], scale[1]))
+                trianSet_list.append(scale[2])
+            
+            testSet_list = testSet_list
+            
+            #------------------------------------------
+            
             bestOverDict = []
 
             for d_idx, kernelDict in enumerate(kernelDict_list):
@@ -31,7 +51,9 @@ class mySampler:
 
                 gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, sparsity = self.sparsity, normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
                 sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose = verbose) # it was false
+                print("Triplet: {}, {}, {}".format(sel_CA, sel_kWrapp, weights))
                 pred = sel_kWrapp.predict(testSet_list, weights, trainLabel)
+                print(pred)
                 sel_accuracy = accuracy_score(testLabel, pred)
                 precision = precision_score(testLabel, pred)
                 recall = recall_score(testLabel, pred)

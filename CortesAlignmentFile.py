@@ -44,11 +44,15 @@ class centeredKernelAlignment:
 
         return a
 
+    
+    def coef(M, a):
+        eta = np.dot(np.linalg.inv(M), a)
+        return eta / np.linalg.norm(eta)
 
     def computeEta(K_list, IK, sparsity = 0, verbose = False):
         
         if sparsity != 0:
-            sp = Lasso(alpha = sparsity, verbose = verbose)
+            sp = Lasso(alpha = sparsity, verbose = verbose, estimator = centeredKernelAlignment())
             eta = sp.fit(K_list, IK).coef_
             
         else:
@@ -60,7 +64,7 @@ class centeredKernelAlignment:
             a = centeredKernelAlignment._idealSimilarityVector(K_c_list, IK)
 
             eta = np.dot(np.linalg.inv(M), a)
-
+            
         return eta / np.linalg.norm(eta)
 
 

@@ -38,7 +38,7 @@ class kernelWrapper:
         
         K_eta = sum(eta*X for eta, X in zip(weights, k_test_list))        
         
-            
+        
         if Ptype == 'classification':
             pred = np.zeros(k_test_list[0].shape)
             for idx, row in enumerate(K_eta):

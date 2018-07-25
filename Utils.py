@@ -81,7 +81,24 @@ def centering(df, except_col): #to apply only on the training set
     for col in except_col: #some columns maybe should not be centered
         X_c[col] = df[col]
 
-    return mean, X_c,
+    return mean, X_c
+
+def centering_rescaling(X, except_col = []): #to apply only on the training set
+
+
+    mean = np.mean(X, axis = 0)
+    var = np.var(X, axis = 0)
+    Mean = np.empty(X.shape)
+    for row in Mean:
+        Mean[i,:] = mean
+
+    X_c = np.divide(X-Mean, var)
+    
+
+    for col in except_col: #some columns maybe should not be centered
+        X_c[:, col] = df[col]
+
+    return mean, var, X_c
 
 # END PREPROCESSING
 
