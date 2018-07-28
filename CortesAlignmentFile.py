@@ -45,23 +45,21 @@ class centeredKernelAlignment:
         return a
 
     
-    def coef(M, a):
+    def coef(obj, M, a):
         eta = np.dot(np.linalg.inv(M), a)
         return eta / np.linalg.norm(eta)
 
-    def computeEta(K_list, IK, sparsity = 0, verbose = False):
+    def computeEta(K_list, IK, y = None, sparsity = 0, lasso_maxIter = 0,  verbose = False):
+        
+        K_c_list = [centeredKernelAlignment._centeredKernel(K) for K in K_list]
+        M = centeredKernelAlignment._kernelSimilarityMatrix(K_c_list)
+        a = centeredKernelAlignment._idealSimilarityVector(K_c_list, IK)
         
         if sparsity != 0:
-            sp = Lasso(alpha = sparsity, verbose = verbose, estimator = centeredKernelAlignment())
-            eta = sp.fit(K_list, IK).coef_
+            sp = Lasso(alpha = sparsity, verbose = verbose, max_iter = lasso_maxIter, estimator = centeredKernelAlignment())
+            eta = sp.fit(M, a, y, K_list).coef_
             
         else:
-
-            K_c_list = [centeredKernelAlignment._centeredKernel(K) for K in K_list]
-
-            M = centeredKernelAlignment._kernelSimilarityMatrix(K_c_list)
-
-            a = centeredKernelAlignment._idealSimilarityVector(K_c_list, IK)
 
             eta = np.dot(np.linalg.inv(M), a)
             
@@ -78,6 +76,9 @@ class centeredKernelAlignment:
         num = ut.frobeniusInnerProduct(k1c, k2c)
         den = np.sqrt(ut.frobeniusInnerProduct(k1c, k1c)*ut.frobeniusInnerProduct(k2c, k2c))
         return num/den
+    
+    def externalScore(obj, k1, k2):
+        return centeredKernelAlignment.score(k1, k2)
 
 """
 class cortesAlignment:

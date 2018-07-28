@@ -3,11 +3,12 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 import myGridSearch as mgs
+import Utils as ut
 
 
 class mySampler:
-    def __init__(self, n_splits=3, test_size=.25, merging = False, sparsity = 0, normalize_kernels = False):
-        self._sampler = StratifiedShuffleSplit(n_splits=n_splits, test_size=test_size, centering = False)
+    def __init__(self, n_splits=3, test_size=.25, merging = False, sparsity = 0, normalize_kernels = False, centering = False):
+        self._sampler = StratifiedShuffleSplit(n_splits=n_splits, test_size=test_size)
         self.merging = merging
         self.sparsity = sparsity
         self.normalize_kernels = normalize_kernels
@@ -30,15 +31,17 @@ class mySampler:
             
             if self.centering == True:
                 if exclusion_list is not None:
-                    scale_list = [centering_rescaling(X, exc) for X, exc in zip(trainSet_list, exclusion_list)]
+                    scale_list = [ut.centering_normalizing(X, exc) for X, exc in zip(trainSet_list, exclusion_list)]
                 else:
-                    scale_list = [centering_rescaling(X) for X in trainSet_list]
+                    scale_list = [ut.centering_normalizing(X) for X in trainSet_list]
             
             trianSet_list = []
             new_ts = []
             for Xts, scale in zip(testSet_list, scale_list):
-                new_ts.append(np.divide(Xts-scale[0], scale[1]))
-                trianSet_list.append(scale[2])
+                #new_ts.append(np.divide(Xts-scale[0], scale[1]))
+                new_ts.append(Xts-scale[0])
+                #trianSet_list.append(scale[2])
+                trianSet_list.append(scale[1])
             
             testSet_list = testSet_list
             
@@ -51,7 +54,6 @@ class mySampler:
 
                 gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, sparsity = self.sparsity, normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
                 sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose = verbose) # it was false
-                print("Triplet: {}, {}, {}".format(sel_CA, sel_kWrapp, weights))
                 pred = sel_kWrapp.predict(testSet_list, weights, trainLabel)
                 print(pred)
                 sel_accuracy = accuracy_score(testLabel, pred)
@@ -67,6 +69,8 @@ class mySampler:
                 print("\tResult of {}:".format(split_idx))
                 for b in bestOverDict:
                     print("CA: {}".format(b["CA"]))
+                    print("Accuracy: {}".format(b["Accuracy"]))
+                    print("Recall: {}".format(b["Recall"]))
                     print(b["config"].printConfig())
                     print("eta vector: {}".format(b["eta"]))
                     

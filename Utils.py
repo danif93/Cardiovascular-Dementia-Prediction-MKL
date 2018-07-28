@@ -5,6 +5,8 @@ import pandas as pd
 #import quadprog as qp
 from sklearn.preprocessing import LabelBinarizer
 
+from sklearn.preprocessing import normalize
+
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LassoCV
 from sklearn.linear_model import ElasticNet
@@ -56,15 +58,34 @@ def oneHotEncoder(v):
     enc = ohe.fit_transform(v)
     binary = []
     for r in enc:
-
         row = ''
-
         for c in r:
             row += str(c)
 
         binary.append(int(row))
 
     return np.asarray(binary)
+
+def oneHotEncoder_v2(df, col_to_encode):
+    
+    for col in col_to_encode:
+        print(col)
+        c = df[col]
+        diff_labels = np.unique(c)
+        print(diff_labels)
+        for i, dl in enumerate(diff_labels):
+            new_c = np.ones(len(c))
+            change_idx = np.where(c != dl)
+            new_c[change_idx] = -1
+            
+            s = pd.DataFrame({col+str(i):new_c}, index = range(len(new_c)))
+            df = df.add(s, fill_value = 0)
+            
+    df = df.drop(col_to_encode, axis = 1)
+    
+    return df
+    
+    
 
 
 def centering(df, except_col): #to apply only on the training set
@@ -73,7 +94,7 @@ def centering(df, except_col): #to apply only on the training set
 
     mean = np.mean(X, axis = 0)
     Mean = np.empty(X.shape)
-    for row in Mean:
+    for i in range(Mean.shape[0]):
         Mean[i,:] = mean
 
     X_c = pd.DataFrame(X-Mean, index = df.index, columns = df.columns)
@@ -88,17 +109,49 @@ def centering_rescaling(X, except_col = []): #to apply only on the training set
 
     mean = np.mean(X, axis = 0)
     var = np.var(X, axis = 0)
+    zero_idx = np.where(var == 0)
+    var[zero_idx] = 1
     Mean = np.empty(X.shape)
-    for row in Mean:
+    for i in range(Mean.shape[0]):
         Mean[i,:] = mean
 
     X_c = np.divide(X-Mean, var)
     
-
     for col in except_col: #some columns maybe should not be centered
-        X_c[:, col] = df[col]
+        X_c[:, col] = X[:, col]
 
     return mean, var, X_c
+
+def centering_v2(X, except_col = []): #to apply only on the training set
+
+
+    mean = np.mean(X, axis = 0)
+    Mean = np.empty(X.shape)
+    for i in range(Mean.shape[0]):
+        Mean[i,:] = mean
+    
+    X_c = X-Mean
+    
+    for col in except_col: #some columns maybe should not be centered
+        X_c[:, col] = X[:, col]
+
+    return mean, X_c
+
+def centering_normalizing(X, except_col = []): #to apply only on the training set
+
+
+    mean = np.mean(X, axis = 0)
+    Mean = np.empty(X.shape)
+    for i in range(Mean.shape[0]):
+        Mean[i,:] = mean
+    
+    X_c = X-Mean
+    
+    for col in except_col: #some columns maybe should not be centered
+        X_c[:, col] = X[:, col]
+        
+    return mean, normalize(X_c)
+
 
 # END PREPROCESSING
 

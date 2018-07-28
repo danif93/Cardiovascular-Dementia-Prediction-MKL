@@ -1,5 +1,6 @@
 import numpy as np
 import itertools
+import operator 
 #from sklearn.base import BaseEstimator, RegressorMixin
 #from copy import deepcopy
 #from Utils import frobeniusInnerProduct
@@ -7,48 +8,68 @@ import itertools
 
 class Lasso:
     
-    def __init__(self, alpha=1.0, max_iter=500, tol = 0.01, estimator = False):
+    def __init__(self, alpha=1.0, max_iter=500, tol = 0.01, estimator = False, verbose = False):
         
         self.alpha = alpha
         self.max_iter = max_iter
         self.tol = tol
         self.estimator = estimator
+        self.verbose = verbose
         
        
-    def fit(self, X, y):
+    def fit(self, X, y, label, K_list):
         
         if self.max_iter ==  0: #analytical solution
             self.eta_length = X.shape[1]
-            tmp_config_list = []
-            """
-            for i in range(self.eta_length):
-                tmp_config_list.append([0, 1,-1])
-            sign_matrix = np.asmatrix([list(elem) for elem in itertools.product(*tmp_config_list)])
-            """
-            smart_sign_list = []
-            smart_config_list = [
-                                 [[1,-1], [1,-1], [1,-1], [1,-1], [1,-1], [1,-1], [0], [0], [0]], 
-                                 [[1,-1], [1,-1], [1,-1], [0], [0], [0], [1,-1], [1,-1], [1,-1]],
-                                 [[0], [0], [0], [1,-1], [1,-1], [1,-1], [1,-1], [1,-1], [1,-1]],
-                                 [[0], [1,-1], [1,-1], [0], [1,-1], [1,-1], [0], [1,-1], [1,-1]],
-                                 [[1,-1], [0], [1,-1], [1,-1], [0], [1,-1], [1,-1], [0], [1,-1]],
-                                 [[1,-1], [1,-1], [0], [1,-1], [1,-1], [0], [1,-1], [1,-1], [0]]
-                                ] #TODO TO COMPLETE
-            for smart_config in smart_sign_list:
-                smart_sign_list += [list(elem) for elem in itertools.product(*smart_config)]
+            smart_config_list = []
             
-            for smart_sign in smart_sign_list:
-                smart_sign = np.asarray(sorted(smart_sign, reverse = True))
-                zero_idx = np.where(smart_sign_list == 0)
-                C = np.multiply(np.ones(self.eta_length), sign_matrix[i,:])*alpha
+            for i in range(self.eta_length):
+                smart_config_list.append([0, 1,-1])
+            
+            smart_sign_list = []
+            
+            smart_sign_list += [list(elem) for elem in itertools.product(*smart_config_list)]
+            
+            del_idx_list = []
+            
+            #if self.verbose: print("Lasso configuration dropping")
+            for del_idx, config in enumerate(smart_sign_list):
+                num_zeros = len(np.where(np.asarray(config) == 0)[0])
+                if num_zeros < 4 or num_zeros > 6:
+                    del_idx_list.append(del_idx)
+            
+            for idx in sorted(del_idx_list, reverse = True):
+                del smart_sign_list[idx]
+            
+            #if self.verbose: print("Lasso dropping completed")
+            
+            score_eta_list = []
+            for idx, smart_sign in enumerate(smart_sign_list):
+                #if self.verbose and (idx+1)%3000 == 0: print("Lasso working on configuration {}/{}".format(idx+1, len(smart_sign_list)))
+                smart_sign = np.asarray(smart_sign)
+                zero_idx = np.where(smart_sign == 0)[0]
+                C = np.multiply(np.ones(self.eta_length), smart_sign)*self.alpha
                 X_tmp = X
                 X_tmp = np.delete(X, zero_idx, 0)
-                X_tmp = np.delete(X, zero_idx, 1)
+                X_tmp = np.delete(X_tmp, zero_idx, 1)
                 y_tmp = y + C
-                y_tmp = np.delete(y_tmp, zero_idx, 1)
-                eta = estimator.coef(X_tmp, y_tmp)
+                y_tmp = np.delete(y_tmp, zero_idx)
+                
+                """
+                if self.verbose and (idx)%3000 == 0:
+                    print(X_tmp.shape)
+                    print(X_tmp)
+                    print(np.delete(X, zero_idx[0], 0))
+                """
+                eta = self.estimator.coef(X_tmp, y_tmp.T)
                 smart_sign = np.delete(smart_sign, zero_idx)
-                if np.allclose(np.sign(eta), sign_matrix[i,:]):
+                """
+                if self.verbose and (idx+1)%3000 == 0:
+                    print(zero_idx)
+                    print(smart_sign)
+                    print(eta)
+                """
+                if np.allclose(np.sign(eta), smart_sign):
                     real_eta = np.zeros(len(C))
                     eta_idx = 0
                     for idx, entry in enumerate(C):
@@ -57,8 +78,12 @@ class Lasso:
                         else:
                             real_eta[idx] = eta[eta_idx]
                             eta_idx += 1
-                            
-                    return real_eta
+                    
+                    #self.coef_ = real_eta
+                    K_eta = sum(eta*K for eta, K in zip(real_eta, K_list))
+                    score_eta_list.append((self.estimator.externalScore(K_eta, np.outer(label,label)), real_eta))
+                    #if self.verbose: print("Smart approach converges. Picked: {}".format(self.coef_))
+                    #return self
             """
             for i in range(sign_matrix.shape[0]):
                 if list(sign_matrix[i,:]) in smart_sign_list:
@@ -69,13 +94,22 @@ class Lasso:
                 eta = estimator.coef(X, y + C)
                 if np.sign(eta) == sign_matrix[i,:]:
                     return eta
-            """  
-            
-            return eta.coef(X, y) #return the not constrained problem's solution
+            """
+            if score_eta_list == []:
+                self.coef_ = self.estimator.coef(X, y) #return the not constrained problem's solution
+                if self.verbose: print("Smart approach failed. No sparsity applied")
+
+            else:
+                
+                self.coef_ = max(score_eta_list, key=operator.itemgetter(0))[1]
+                #if self.verbose: print("Smart approach converged. Picked: {}".format(self.coef_))
+                
+            return self
 
         else: #TODO if needed
+            raise Eception("Error you must not be here")
             for i in range(self.max_iter):
-                estimator.fit()
+                self.estimator.fit()
             
       
 """
