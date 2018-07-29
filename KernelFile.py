@@ -32,63 +32,28 @@ class kernelWrapper:
                     
         return self
     
-    def predict(self, Xts_list, weights, tr_label, Ptype = 'classification'):
+    def predict(self, Xts_list, weights, tr_label, estimator, Ptype = 'classification'):
         
         k_test_list = self.kernelMatrix(Xts_list).kernelMatrix_list_
         
         K_eta = sum(eta*X for eta, X in zip(weights, k_test_list))        
         
+        K_eta_c = estimator.centeredKernel(K_eta)
         
         if Ptype == 'classification':
             pred = np.zeros(k_test_list[0].shape)
-            for idx, row in enumerate(K_eta):
+            for idx, row in enumerate(K_eta_c):
                 pred[idx, :] += np.multiply(row, tr_label)
                 
             return np.sign(np.sum(pred, axis = 1))
         
         else:
-            pred = np.zeros(k_test_list[0].shape[0])
-            for idx, row in enumerate(K_eta):
+            pred = np.zeros(K_eta_c.shape[0])
+            for idx, row in enumerate(K_eta_c):
                 pred[idx, :] += np.dot(row, tr_label)/np.sum(row)
                 
             return pred
         
-    
-    def accuracy(self, test_labels, Xts_list = None, weights = None, tr_label = None, test_pred = None):
-        
-        if test_pred == None:
-            test_pred = self.predict(Xts_list, weights, tr_label)
-        return np.mean(np.absolute(test_pred-test_labels))/2
-    
-    def precision(self, test_labels, Xts_list = None, weights = None, tr_label = None, test_pred = None):
-        
-        if test_pred == None:
-            test_pred = self.predict(Xts_list, weights, tr_label)
-        
-        s = test_pred + test_labels
-        
-        if np.where(s == 2) == np.asarray([]):
-            return 0
-        
-        d = test_pred - test_labels
-        TP = len(np.where(s == 2))
-        FP = len(np.where(d == 2))
-        return TP/(TP+FP)
-
-    def recall(self, test_labels, Xts_list = None, weights = None, tr_label = None, test_pred = None):
-        
-        if test_pred == None:
-            test_pred = self.predict(Xts_list, weights, tr_label)
-            
-        s = test_pred + test_labels
-        
-        if np.where(s == 2) == np.asarray([]):
-            return 0
-        
-        d = test_pred - test_labels
-        TP = len(np.where(s == 2))
-        FN = len(np.where(d == -2))
-        return TP/(TP+FN)
 
     def getConfig(self):
         
@@ -191,24 +156,3 @@ class kernel:
 
     def getKernelMatrix(self):
         return self.K
-    
-"""
-    def kernelMatrix(self, X):        
-
-        if self.K_type == 'linear':
-            self.K = np.dot(X, self.Xtr.T)
-            return  self.K
-
-        if self.K_type == 'polynomial':
-            # return polynomial_kernel(X, self.Xtr, degree=self.param)
-            self.K = np.power(np.dot(X, self.Xtr.T)+1, self.param)
-            return  self.K
-
-        if self.K_type == 'gaussian':
-            self.K = np.zeros((X.shape[0], self.Xtr.shape[0]))
-            for i, sample_tr in enumerate(self.Xtr):
-                for j, sample in enumerate(X):
-                    d = np.linalg.norm(sample_tr-sample) ** 2
-                    self.K[j, i] = np.exp(-d/(2*self.param*self.param))
-            return  self.K
-"""

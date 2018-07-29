@@ -4,7 +4,6 @@ import math as mt
 import pandas as pd
 #import quadprog as qp
 from sklearn.preprocessing import LabelBinarizer
-
 from sklearn.preprocessing import normalize
 
 from sklearn.linear_model import Lasso
@@ -69,10 +68,8 @@ def oneHotEncoder(v):
 def oneHotEncoder_v2(df, col_to_encode):
     
     for col in col_to_encode:
-        print(col)
         c = df[col]
         diff_labels = np.unique(c)
-        print(diff_labels)
         for i, dl in enumerate(diff_labels):
             new_c = np.ones(len(c))
             change_idx = np.where(c != dl)
@@ -88,21 +85,20 @@ def oneHotEncoder_v2(df, col_to_encode):
     
 
 
-def centering(df, except_col): #to apply only on the training set
-
-    X = df.values
+def centering(X, except_col = []): #to apply only on the training set
 
     mean = np.mean(X, axis = 0)
     Mean = np.empty(X.shape)
     for i in range(Mean.shape[0]):
         Mean[i,:] = mean
-
-    X_c = pd.DataFrame(X-Mean, index = df.index, columns = df.columns)
-
+    
+    X_c = X-Mean
+    
     for col in except_col: #some columns maybe should not be centered
-        X_c[col] = df[col]
+        X_c[:, col] = X[:, col]
 
     return mean, X_c
+
 
 def centering_rescaling(X, except_col = []): #to apply only on the training set
 
@@ -151,6 +147,7 @@ def centering_normalizing(X, except_col = []): #to apply only on the training se
         X_c[:, col] = X[:, col]
         
     return mean, normalize(X_c)
+
 
 
 # END PREPROCESSING

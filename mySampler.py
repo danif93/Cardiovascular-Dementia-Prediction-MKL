@@ -1,18 +1,22 @@
 import numpy as np
+
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.preprocessing import normalize
 
 import myGridSearch as mgs
 import Utils as ut
 
 
 class mySampler:
-    def __init__(self, n_splits=3, test_size=.25, merging = False, sparsity = 0, normalize_kernels = False, centering = False):
+    def __init__(self, n_splits=3, test_size=.25, merging = False, sparsity = 0, lamb = 0, normalize_kernels = False, centering = False, normalizing = False):
         self._sampler = StratifiedShuffleSplit(n_splits=n_splits, test_size=test_size)
         self.merging = merging
         self.sparsity = sparsity
+        self.lamb = lamb
         self.normalize_kernels = normalize_kernels
         self.centering = centering
+        self.normalizing = normalizing
         
     def sample(self, kernelDict_list, estimator, X_list, y, valid_fold = 3, verbose=False, exclusion_list = None):
                 # exclusion_list in the form list of lists, one per dataset
@@ -27,23 +31,33 @@ class mySampler:
             testLabel = y[test_idx]
             
             #------------------------------------------------
-            # CENTERING
+            # CENTERING AND NORMALIZING
             
-            if self.centering == True:
+            if self.centering:
                 if exclusion_list is not None:
                     scale_list = [ut.centering_normalizing(X, exc) for X, exc in zip(trainSet_list, exclusion_list)]
                 else:
                     scale_list = [ut.centering_normalizing(X) for X in trainSet_list]
             
-            trianSet_list = []
-            new_ts = []
-            for Xts, scale in zip(testSet_list, scale_list):
-                #new_ts.append(np.divide(Xts-scale[0], scale[1]))
-                new_ts.append(Xts-scale[0])
-                #trianSet_list.append(scale[2])
-                trianSet_list.append(scale[1])
+                trainSet_list = []
+                new_ts = []
+                for idx, (Xts, scale) in enumerate(zip(testSet_list, scale_list)):
+                    new_Xts = Xts-scale[0]
+
+                    if exclusion_list[idx] != []:
+                        new_Xts[:, exclusion_list[idx]] = Xts[:, exclusion_list[idx]]
+
+                    new_ts.append(new_Xts)
+                    trainSet_list.append(scale[1])
+
+                testSet_list = testSet_list
             
-            testSet_list = testSet_list
+            if self.normalizing:
+                for i in range(len(testSet_list)):
+                    testSet_list[i] = normalize(testSet_list[i])
+                    
+                for i in range(len(trainSet_list)):
+                    trainSet_list[i] = normalize(trainSet_list[i])
             
             #------------------------------------------
             
@@ -52,9 +66,9 @@ class mySampler:
             for d_idx, kernelDict in enumerate(kernelDict_list):
                 if verbose: print("\tWorking on config {} of {}: {}".format(d_idx+1, len(kernelDict_list), kernelDict))
 
-                gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, sparsity = self.sparsity, normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
+                gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, sparsity = self.sparsity, lamb = self.lamb, normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
                 sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose = verbose) # it was false
-                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel)
+                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel, estimator)
                 print(pred)
                 sel_accuracy = accuracy_score(testLabel, pred)
                 precision = precision_score(testLabel, pred)
@@ -97,9 +111,9 @@ class mySampler:
                         print("\t\t{} : {}".format(k,v))
 
                 print("\tComputing performances using the merged dictionary")
-                gs = mgs.myGridSearchCV(estimator, best_kernel_dict, fold = valid_fold, sparsity = self.sparsity, normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
+                gs = mgs.myGridSearchCV(estimator, best_kernel_dict, fold = valid_fold, sparsity = self.sparsity, lamb = self.lamb, normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
                 sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose= verbose) #it was true
-                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel)
+                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel, estimator)
                 sel_accuracy = accuracy_score(testLabel, pred)
                 precision = precision_score(testLabel, pred)
                 recall = recall_score(testLabel, pred)

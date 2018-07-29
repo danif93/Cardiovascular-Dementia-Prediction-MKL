@@ -5,13 +5,14 @@ from sklearn.model_selection import StratifiedKFold
 
 class myGridSearchCV:
     
-    def __init__(self, estimator, param_grid, fold = 5, sparsity = 0, normalize_kernels = False):
+    def __init__(self, estimator, param_grid, fold = 5, sparsity = 0, lamb = 0, normalize_kernels = False):
         
         self.estimator = estimator
         self.Ktype_list = param_grid.keys()
         self.parameters_lists = param_grid.values()
         self._fold = fold
         self.sparsity = sparsity
+        self.lamb = lamb
         self.normalize_kernels = normalize_kernels
        
     
@@ -29,11 +30,6 @@ class myGridSearchCV:
                 self.configuration_list_ = [list(elem) for elem in itertools.product(*[self.configuration_list_, [list(elem) for elem in itertools.product(*self.parameters_lists)]])]
             else:
                 self.configuration_list_ = [list(elem[0]+[elem[1]]) for elem in itertools.product(*[self.configuration_list_, [list(elem) for elem in itertools.product(*self.parameters_lists)]])]
-        
-        # list of kernels_wrappers. To each possible configuration of the hyperparameter a kernels_wrapper is given 
-        #self.k_wrap_list_ = []
-        #for config in self.configuration_list_:
-        #    self.k_wrap_list_.append(kernelWrapper(self.Xtr_list_, self.Ktype_list, config))
             
         return self
                 
@@ -49,7 +45,7 @@ class myGridSearchCV:
             if verbose: print("Fold no. {}".format(fold_idx+1))
             
             self.train_list_ = [ Xtr[train_index] for Xtr in self.Xtr_list_]
-            self.valid_list_ = [ Xtr[valid_index] for Xtr in self.Xtr_list_]
+            #self.valid_list_ = [ Xtr[valid_index] for Xtr in self.Xtr_list_]
             train_list = [ Xtr[train_index] for Xtr in Xtr_list]
             valid_list = [ Xtr[valid_index] for Xtr in Xtr_list]
             IK_tr = np.outer(self._y[train_index], self._y[train_index])
@@ -64,14 +60,11 @@ class myGridSearchCV:
             # cycle through configurations
             for kw_idx, kw_wrap in enumerate(self.k_wrap_list_):
 
-                #if verbose: print("\tComputing config no. {}: {}".format(kw_idx, kw_wrap.config))
-
                 # compute the list of kernels generated from the hyperparameter configuration at hand
                 kernelMatrix_list = kw_wrap.kernelMatrix(train_list).kernelMatrix_list_
 
                 # compute eta vector
-                #if verbose: print("\t\tComputing eta for {}".format(kw_idx))
-                eta = self.estimator.computeEta(kernelMatrix_list, IK_tr, y = self._y[train_index], sparsity = self.sparsity, verbose = verbose)
+                eta = self.estimator.computeEta(kernelMatrix_list, IK_tr, y = self._y[train_index], sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
 
                 # compute k_eta (approximation) for the validation set
                 kernelMatrix_list = kw_wrap.kernelMatrix(valid_list).kernelMatrix_list_
@@ -92,12 +85,10 @@ class myGridSearchCV:
         # recompute the eta for the selected configuration
         k_wrap_best = kernelWrapper(self.Xtr_list_, self.Ktype_list, self.configuration_list_[selected], normalize = self.normalize_kernels)
         kernelMatrix_list = k_wrap_best.kernelMatrix(Xtr_list).kernelMatrix_list_
-        eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = self._y[valid_index] , sparsity = self.sparsity, verbose = verbose)
+        eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = self._y , sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
         
         # sum all the kernel matrix
-        k_eta = np.zeros(kernelMatrix_list[0].shape)
-        for eta_i, Ki in zip(eta, kernelMatrix_list):
-            k_eta += eta_i * Ki
-        
+        k_eta = sum(eta_i * Ki for eta_i, Ki in zip(eta, kernelMatrix_list))
+
         return (self.estimator.score(k_eta, self.IK_), k_wrap_best, eta)
             
