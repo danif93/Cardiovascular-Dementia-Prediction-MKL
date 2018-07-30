@@ -69,7 +69,10 @@ class mySampler:
                 gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, sparsity = self.sparsity, lamb = self.lamb, normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
                 sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose = verbose) # it was false
                 pred = sel_kWrapp.predict(testSet_list, weights, trainLabel, estimator)
-                print(pred)
+                
+                # print predictions:
+                if verbose: print(pred)
+                
                 sel_accuracy = accuracy_score(testLabel, pred)
                 precision = precision_score(testLabel, pred)
                 recall = recall_score(testLabel, pred)
@@ -80,7 +83,7 @@ class mySampler:
                 bestOverDict.append({"CA":sel_CA, "Accuracy":sel_accuracy, "Precision":precision, "Recall":recall, "config":sel_kWrapp, "eta":weights})
 
             if verbose:
-                print("\tResult of {}:".format(split_idx))
+                print("\tResult of {}:".format(split_idx+1))
                 for b in bestOverDict:
                     print("CA: {}".format(b["CA"]))
                     print("Accuracy: {}".format(b["Accuracy"]))
@@ -157,8 +160,5 @@ class mySampler:
                         outcome_dict[key] = (np.mean(value), np.var(value))
                     else:
                         outcome_dict[key] = (np.mean(value, axis = 0), np.var(value, axis = 0))
-                    
-                            
-                    
-                            
+                                            
             print(outcome_dict)
