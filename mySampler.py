@@ -19,7 +19,7 @@ class mySampler:
         self.normalizing = normalizing
         
     def sample(self, kernelDict_list, estimator, X_list, y, valid_fold = 3, verbose=False, exclusion_list = None):
-                # exclusion_list in the form list of lists, one per dataset
+        # exclusion_list in the form list of lists, one per dataset
 
         global_best = []
 
@@ -66,19 +66,20 @@ class mySampler:
             for d_idx, kernelDict in enumerate(kernelDict_list):
                 if verbose: print("\tWorking on config {} of {}: {}".format(d_idx+1, len(kernelDict_list), kernelDict))
 
-                gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, sparsity = self.sparsity, lamb = self.lamb, normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
+                gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, sparsity = self.sparsity, lamb = self.lamb,
+                                        normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
+                
                 sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose = verbose) # it was false
+                
                 pred = sel_kWrapp.predict(testSet_list, weights, trainLabel, estimator)
                 
                 # print predictions:
-                if verbose: print(pred)
+                #if verbose: print(pred)
                 
                 sel_accuracy = accuracy_score(testLabel, pred)
                 precision = precision_score(testLabel, pred)
                 recall = recall_score(testLabel, pred)
-                #sel_accuracy = sel_kWrapp.accuracy(testLabel, test_pred = pred)
-                #precision = sel_kWrapp.precision(testLabel, test_pred = pred)
-                #recall = sel_kWrapp.recall(testLabel, test_pred = pred)
+                
 
                 bestOverDict.append({"CA":sel_CA, "Accuracy":sel_accuracy, "Precision":precision, "Recall":recall, "config":sel_kWrapp, "eta":weights})
 
@@ -87,9 +88,10 @@ class mySampler:
                 for b in bestOverDict:
                     print("CA: {}".format(b["CA"]))
                     print("Accuracy: {}".format(b["Accuracy"]))
+                    print("Precision: {}".format(b["Precision"]))
                     print("Recall: {}".format(b["Recall"]))
                     print(b["config"].printConfig())
-                    print("eta vector: {}".format(b["eta"]))
+                    print("eta vector: {}\n".format(b["eta"]))
                     
             if self.merging:
 
@@ -129,6 +131,53 @@ class mySampler:
         return self
     
     
+    def votingOverCA(self, ds_names, k_names):
+                
+        # INITIALISATION
+        n_dict = len(self.global_best_[0])
+        n_dataset = len(self.global_best_[0][0]['config'].config)
+        n_dictType = len(self.global_best_[0][0]['config'].config[0])
+        voting = []
+        for d in range(n_dict):
+            new_d = {}
+            for ds_idx in range(n_dataset):
+                new_d[ds_names[ds_idx]] = {}
+                for dt_idx in range(n_dictType):
+                    new_d[ds_names[ds_idx]][k_names[dt_idx]] = {}
+            voting.append(new_d)        
+        
+        # FILLING CONFIG FROM global_best_
+        for sampling in self.global_best_:
+            for dict_idx, config_dict in enumerate(sampling):
+                for ds_idx, ds in enumerate(config_dict['config'].config):
+                    for dt_idx, dt in enumerate(ds):
+                        try:
+                            voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] += config_dict['CA']
+                        except KeyError:
+                            voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] = config_dict['CA']
+                            
+        #print(voting)
+                           
+        # RECOVERING CONFIG FROM voting
+        winning_dict = []
+        winning_list = []
+        for config_dict in voting:
+            new_c = {}
+            new_c_l = []
+            for ds_key in config_dict.keys():
+                new_ds = {}
+                new_ds_l = []
+                for dt_key in config_dict[ds_key].keys():
+                    max_v = max(config_dict[ds_key][dt_key], key=lambda key: config_dict[ds_key][dt_key][key])
+                    new_ds[dt_key] = max_v
+                    #max(config_dict[ds_key][dt_key], key=lambda key: config_dict[ds_key][dt_key][key])
+                    new_ds_l.append(max_v)
+                new_c[ds_key] = new_ds
+                new_c_l.append(new_ds_l)
+            winning_dict.append(new_c)
+            winning_list.append(new_c_l)
+        
+        return (winning_dict, winning_list)
     
     def performancesFeatures(self):
         

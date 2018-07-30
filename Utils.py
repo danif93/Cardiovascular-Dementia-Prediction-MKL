@@ -3,13 +3,16 @@ import numpy as np
 import math as mt
 import pandas as pd
 #import quadprog as qp
+
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import normalize
-
+from sklearn.metrics import precision_score, recall_score, accuracy_score
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LassoCV
 from sklearn.linear_model import ElasticNet
 
+
+import KernelFile as kf
 
 #----------------------------------------
 # PREPROCESSING
@@ -178,6 +181,40 @@ def frobeniusInnerProduct(A, B):
     A = np.matrix.conjugate(A).ravel()
     B = B.ravel()
     return np.dot(A, B)
+
+
+def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types):
+    # FIND THE BEST CONFIGURATIONS METRICS
+    IK_tr = np.outer(y_train, y_train)
+    IK_test = np.outer(y_test, y_test)
+
+    for cl_idx, cl in enumerate(config_list):
+        found_kWrap = kf.kernelWrapper(train_list, kernel_types, cl, normalize = True)
+        # compute the list of kernels generated from the hyperparameter configuration at hand
+        kernelMatrix_list = found_kWrap.kernelMatrix(train_list).kernelMatrix_list_
+
+        # compute eta vector
+        eta = estimator.computeEta(kernelMatrix_list, IK_tr, y = y_train, verbose = True)
+
+        # compute k_eta (approximation) for the validation set
+        #kernelMatrix_list = found_kWrap.kernelMatrix(ds_test).kernelMatrix_list_
+        #k_eta = np.zeros(kernelMatrix_list[0].shape)
+        #for eta_i, Ki in zip(eta, kernelMatrix_list):
+        #    k_eta += eta_i * Ki
+        #performances = estimator.score(k_eta, IK_test)
+
+
+        # compute performances estimation
+        pred = found_kWrap.predict(test_list, eta, y_train, estimator)
+        
+        accuracy = accuracy_score(y_test, pred)
+        precision = precision_score(y_test, pred)
+        recall = recall_score(y_test, pred)
+        
+        print("Perfomances computed for {} dictionary settings:".format(cl_idx+1))
+        print("\tAccuracy: {}".format(accuracy))
+        print("\tPrecision: {}".format(precision))
+        print("\tRecall: {}".format(recall))
 
 
 # END GENERAL UTIL FUNCTIONS
