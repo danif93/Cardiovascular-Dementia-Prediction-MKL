@@ -1,30 +1,37 @@
 import numpy as np
 
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.preprocessing import normalize
 
 import myGridSearch as mgs
 import Utils as ut
+import time
 
 
 class mySampler:
-    def __init__(self, n_splits=3, test_size=.25, merging = False, sparsity = 0, lamb = 0, normalize_kernels = False, centering = False, normalizing = False):
-        self._sampler = StratifiedShuffleSplit(n_splits=n_splits, test_size=test_size)
+    def __init__(self, n_splits=3, test_size=.25, Ptype="classification", merging = False, sparsity = 0, lamb = 0, normalize_kernels = False, centering = False, normalizing = False):
+        if Ptype=="classification":
+            self._sampler = StratifiedShuffleSplit(n_splits=n_splits, test_size=test_size)
+        else:
+            self._sampler = ShuffleSplit(n_splits=n_splits, test_size=test_size)
         self.merging = merging
         self.sparsity = sparsity
         self.lamb = lamb
         self.normalize_kernels = normalize_kernels
         self.centering = centering
         self.normalizing = normalizing
+        self.Ptype = Ptype
         
-    def sample(self, kernelDict_list, estimator, X_list, y, valid_fold = 3, verbose=False, exclusion_list = None):
+    def sample(self, kernelDict_list, estimator, X_list, y, valid_fold=3, verbose=False, exclusion_list = None):
         # exclusion_list in the form list of lists, one per dataset
 
         global_best = []
 
         for split_idx, (train_idx, test_idx) in enumerate(self._sampler.split(X_list[0], y)):
-            if verbose: print("{} split out of {} ...".format(split_idx+1, self._sampler.get_n_splits()))
+            if verbose: 
+                print("\n{} split out of {} ...".format(split_idx+1, self._sampler.get_n_splits()))
+                initTime = time.mktime(time.gmtime())
             trainSet_list = [X[train_idx] for X in X_list]
             testSet_list = [X[test_idx] for X in X_list]
             trainLabel = y[train_idx]
@@ -66,33 +73,46 @@ class mySampler:
             for d_idx, kernelDict in enumerate(kernelDict_list):
                 if verbose: print("\tWorking on config {} of {}: {}".format(d_idx+1, len(kernelDict_list), kernelDict))
 
-                gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, sparsity = self.sparsity, lamb = self.lamb,
-                                        normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
+                gs = mgs.myGridSearchCV(estimator, kernelDict, fold = valid_fold, Ptype=self.Ptype ,sparsity = self.sparsity,
+                                        lamb=self.lamb, normalize_kernels=self.normalize_kernels).fit(trainSet_list, trainLabel)
                 
                 sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose = verbose) # it was false
                 
-                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel, estimator)
+                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel, estimator, Ptype=self.Ptype)
                 
                 # print predictions:
                 #if verbose: print(pred)
-                
-                sel_accuracy = accuracy_score(testLabel, pred)
-                precision = precision_score(testLabel, pred)
-                recall = recall_score(testLabel, pred)
-                
+                if self.Ptype == "classification":
+                    sel_accuracy = accuracy_score(testLabel, pred)
+                    precision = precision_score(testLabel, pred)
+                    recall = recall_score(testLabel, pred)
+                    bestOverDict.append({"CA":sel_CA, "Accuracy":sel_accuracy, "Precision":precision, "Recall":recall, "config":sel_kWrapp, "eta":weights})
 
-                bestOverDict.append({"CA":sel_CA, "Accuracy":sel_accuracy, "Precision":precision, "Recall":recall, "config":sel_kWrapp, "eta":weights})
-
-            if verbose:
-                print("\tResult of {}:".format(split_idx+1))
-                for b in bestOverDict:
-                    print("CA: {}".format(b["CA"]))
-                    print("Accuracy: {}".format(b["Accuracy"]))
-                    print("Precision: {}".format(b["Precision"]))
-                    print("Recall: {}".format(b["Recall"]))
-                    print(b["config"].printConfig())
-                    print("eta vector: {}\n".format(b["eta"]))
-                    
+                    if verbose:
+                        print("\tResult of {}:".format(split_idx+1))
+                        for b in bestOverDict:
+                            print("CA: {}".format(b["CA"]))
+                            print("Accuracy: {}".format(b["Accuracy"]))
+                            print("Precision: {}".format(b["Precision"]))
+                            print("Recall: {}".format(b["Recall"]))
+                            print(b["config"].printConfig())
+                            print("eta vector: {}\n".format(b["eta"]))
+                        print("\n\tCompleted in {} minutes".format((time.mktime(time.gmtime())-initTime)/60))
+                else:
+                    meanErr = np.mean(np.abs(pred-testLabel))
+                    varErr = np.var(np.abs(pred-testLabel))
+                    bestOverDict.append({"CA":sel_CA, "meanErr":meanErr, "varErr":varErr, "config":sel_kWrapp, "eta":weights})
+                    if verbose:
+                        print("\tResult of {}:".format(split_idx+1))
+                        for b in bestOverDict:
+                            print("CA: {}".format(b["CA"]))
+                            print("Average error: {}".format(b["meanErr"]))
+                            print("Error variance: {}".format(b["varErr"]))
+                            print(b["config"].printConfig())
+                            print("eta vector: {}\n".format(b["eta"]))
+                        print("\n\tCompleted in {} minutes".format((time.mktime(time.gmtime())-initTime)/60))
+                            
+            """       
             if self.merging:
 
                 if verbose: print("\tMearging config of split {} ...".format(split_idx+1))
@@ -125,7 +145,8 @@ class mySampler:
                 global_best.append({"CA":sel_CA, "Accuracy":sel_accuracy, "Precision":precision, "Recall":recall, "config":sel_kWrapp, "eta":weights})
                 
             else:
-                global_best.append(bestOverDict)
+            """
+            global_best.append(bestOverDict)
 
         self.global_best_ = global_best
         return self
@@ -182,7 +203,7 @@ class mySampler:
     def performancesFeatures(self):
         
         for c_idx, config in enumerate(self.global_best_[0]):
-            print("statistics of configuration {}".format(c_idx))
+            print("statistics of configuration {}".format(c_idx+1))
             outcome_dict = {}
             outcome_dict['config'] = {}
             for res in self.global_best_: #one res per sample

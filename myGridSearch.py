@@ -1,11 +1,11 @@
 import numpy as np
 from KernelFile import kernelWrapper
 import itertools
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, KFold
 
 class myGridSearchCV:
     
-    def __init__(self, estimator, param_grid, fold = 5, sparsity = 0, lamb = 0, normalize_kernels = False):
+    def __init__(self, estimator, param_grid, fold = 5, Ptype="classification", sparsity = 0, lamb = 0, normalize_kernels = False):
         
         self.estimator = estimator
         self.Ktype_list = param_grid.keys()
@@ -14,6 +14,10 @@ class myGridSearchCV:
         self.sparsity = sparsity
         self.lamb = lamb
         self.normalize_kernels = normalize_kernels
+        if  Ptype=="classification":
+            self.kFolder = StratifiedKFold(n_splits=self._fold)
+        else:
+            self.kFolder = KFold(n_splits=self._fold)
        
     
     def fit(self, Xtr_list, y):
@@ -35,12 +39,10 @@ class myGridSearchCV:
                 
         
     def transform(self, Xtr_list, verbose=False):
-        
-        kf = StratifiedKFold(n_splits=self._fold)
-        
+                
         performances = np.empty((self._fold, len(self.configuration_list_)))
         
-        for fold_idx, (train_index, valid_index) in enumerate(kf.split(Xtr_list[0], self._y)):
+        for fold_idx, (train_index, valid_index) in enumerate(self.kFolder.split(Xtr_list[0], self._y)):
             
             if verbose: print("Fold no. {}".format(fold_idx+1))
             
