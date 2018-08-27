@@ -37,7 +37,7 @@ class Lasso:
             
             for del_idx, config in enumerate(smart_sign_list):
                 num_zeros = len(np.where(np.asarray(config) == 0)[0])
-                if num_zeros != 4:# PREVIOUSLY num_zeros < 4 or num_zeros > 6:
+                if num_zeros != 5:# PREVIOUSLY num_zeros < 4 or num_zeros > 6:
                     del_idx_list.append(del_idx)
             
             for idx in sorted(del_idx_list, reverse = True):

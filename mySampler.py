@@ -44,7 +44,7 @@ class mySampler:
                 for idx, (Xts, scale) in enumerate(zip(testSet_list, scale_list)):
                     new_Xts = Xts-scale[0]
 
-                    if exclusion_list[idx] != []:
+                    if exclusion_list is not None and exclusion_list[idx] != []:
                         new_Xts[:, exclusion_list[idx]] = Xts[:, exclusion_list[idx]]
 
                     new_ts.append(new_Xts)
@@ -144,12 +144,13 @@ class mySampler:
                 new_d[ds_names[ds_idx]] = {}
                 for dt_idx in range(n_dictType):
                     new_d[ds_names[ds_idx]][k_names[dt_idx]] = {}
-            voting.append(new_d)        
-        
+            voting.append(new_d)
+                
         # FILLING CONFIG FROM global_best_
-        for sampling in self.global_best_:
+        # global_best_: [#sampling:[#config_dict]]
+        for sampling in self.global_best_: # running over the samples
             for dict_idx, config_dict in enumerate(sampling):
-                for ds_idx, ds in enumerate(config_dict['config'].config):
+                for ds_idx, ds in enumerate(config_dict['config'].config):# running over the config_dict
                     for dt_idx, dt in enumerate(ds):
                         try:
                             voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] += config_dict['CA']
@@ -170,7 +171,6 @@ class mySampler:
                 for dt_key in config_dict[ds_key].keys():
                     max_v = max(config_dict[ds_key][dt_key], key=lambda key: config_dict[ds_key][dt_key][key])
                     new_ds[dt_key] = max_v
-                    #max(config_dict[ds_key][dt_key], key=lambda key: config_dict[ds_key][dt_key][key])
                     new_ds_l.append(max_v)
                 new_c[ds_key] = new_ds
                 new_c_l.append(new_ds_l)
@@ -185,7 +185,7 @@ class mySampler:
             print("statistics of configuration {}".format(c_idx))
             outcome_dict = {}
             outcome_dict['config'] = {}
-            for res in self.global_best_: #one res per fold
+            for res in self.global_best_: #one res per sample
                 res = res[c_idx] #correct dictionary
                 for key, value in res.items():
                     if key != 'config':
