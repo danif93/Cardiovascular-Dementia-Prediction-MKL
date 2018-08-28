@@ -183,7 +183,7 @@ def frobeniusInnerProduct(A, B):
     return np.dot(A, B)
 
 
-def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types):
+def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype = 'classification'):
     # FIND THE BEST CONFIGURATIONS METRICS
     IK_tr = np.outer(y_train, y_train)
     IK_test = np.outer(y_test, y_test)
@@ -205,16 +205,26 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
 
 
         # compute performances estimation
-        pred = found_kWrap.predict(test_list, eta, y_train, estimator)
+        pred = found_kWrap.predict(test_list, eta, y_train, estimator, Ptype=Ptype)
         
-        accuracy = accuracy_score(y_test, pred)
-        precision = precision_score(y_test, pred)
-        recall = recall_score(y_test, pred)
+        if Ptype=='classification':        
+            accuracy = accuracy_score(y_test, pred)
+            precision = precision_score(y_test, pred)
+            recall = recall_score(y_test, pred)
         
-        print("Perfomances computed for {} dictionary settings:".format(cl_idx+1))
-        print("\tAccuracy: {}".format(accuracy))
-        print("\tPrecision: {}".format(precision))
-        print("\tRecall: {}".format(recall))
+            print("Perfomances computed for {} dictionary settings:".format(cl_idx+1))
+            print("\tAccuracy: {}".format(accuracy))
+            print("\tPrecision: {}".format(precision))
+            print("\tRecall: {}".format(recall))
+            
+        else:
+            meanErr = np.mean(np.abs(pred-y_test))
+            varErr = np.var(np.abs(pred-y_test))
+            bestOverDict.append({"CA":sel_CA, "meanErr":meanErr, "varErr":varErr, "config":sel_kWrapp, "eta":weights})
+            
+            print("Perfomances computed for {} dictionary settings:".format(cl_idx+1))
+            print("\tAverage error: {}".format(meanErr))
+            print("\tError variance: {}".format(varErr))
 
 
 # END GENERAL UTIL FUNCTIONS
