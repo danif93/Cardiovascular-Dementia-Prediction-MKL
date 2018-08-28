@@ -220,7 +220,6 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
         else:
             meanErr = np.mean(np.abs(pred-y_test))
             varErr = np.var(np.abs(pred-y_test))
-            bestOverDict.append({"CA":sel_CA, "meanErr":meanErr, "varErr":varErr, "config":sel_kWrapp, "eta":weights})
             
             print("Perfomances computed for {} dictionary settings:".format(cl_idx+1))
             print("\tAverage error: {}".format(meanErr))
