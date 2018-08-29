@@ -189,6 +189,8 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
     IK_test = np.outer(y_test, y_test)
 
     for cl_idx, cl in enumerate(config_list):
+        if len(cl) == 1:
+            cl = cl[0]
         found_kWrap = kf.kernelWrapper(train_list, kernel_types, cl, normalize = True)
         # compute the list of kernels generated from the hyperparameter configuration at hand
         kernelMatrix_list = found_kWrap.kernelMatrix(train_list).kernelMatrix_list_
@@ -212,7 +214,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
             precision = precision_score(y_test, pred)
             recall = recall_score(y_test, pred)
         
-            print("Perfomances computed for {} dictionary settings:".format(cl_idx+1))
+            print("Perfomances computed for dictionary settings {}:".format(cl_idx+1))
             print("\tAccuracy: {}".format(accuracy))
             print("\tPrecision: {}".format(precision))
             print("\tRecall: {}".format(recall))
@@ -221,7 +223,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
             meanErr = np.mean(np.abs(pred-y_test))
             varErr = np.var(np.abs(pred-y_test))
             
-            print("Perfomances computed for {} dictionary settings:".format(cl_idx+1))
+            print("Perfomances computed for dictionary settings {}:".format(cl_idx+1))
             print("\tAverage error: {}".format(meanErr))
             print("\tError variance: {}".format(varErr))
 

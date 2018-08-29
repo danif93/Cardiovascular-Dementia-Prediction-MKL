@@ -1,7 +1,9 @@
 import numpy as np
 import Utils as ut
-from myLasso import Lasso
+#from myLasso import Lasso
 #from myLasso2 import Lasso
+from myLasso3 import Lasso
+#from myLasso4 import Lasso
 
 class centeredKernelAlignment:
 
@@ -47,7 +49,7 @@ class centeredKernelAlignment:
 
     
     def coef(obj, M, a):
-        eta = np.dot(np.linalg.inv(M), a)
+        eta = np.dot(np.linalg.pinv(M), a)
         return eta / np.linalg.norm(eta)
 
     def computeEta(K_list, IK, y = None, sparsity = 0, lamb = 0, maxIter = 0,  verbose = False):
@@ -57,17 +59,19 @@ class centeredKernelAlignment:
         a = centeredKernelAlignment._idealSimilarityVector(K_c_list, IK)
         
         if sparsity != 0:
-            sp = Lasso(alpha = sparsity, verbose = verbose, max_iter = maxIter, estimator = centeredKernelAlignment())
-            eta = sp.fit(M, a, y, K_list).coef_
+            #sp = Lasso(alpha = sparsity, verbose = verbose, max_iter = maxIter, estimator = centeredKernelAlignment())
+            #eta = sp.fit(M, a, y, K_list).coef_
+            eta = Lasso(M, a, sparsity, verbose = verbose)
             
         else:
 
             if lamb != 0:
                 M -= lamb*np.identity(M.shape[0])
                     
-            eta = np.dot(np.linalg.inv(M), a)
+            eta = np.dot(np.linalg.pinv(M), a)
+            #eta /= np.linalg.norm(eta)
             
-        return eta / np.linalg.norm(eta)
+        return eta 
 
 
     def score(k1, k2, ideal = True):

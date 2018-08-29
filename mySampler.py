@@ -157,7 +157,11 @@ class mySampler:
         # INITIALISATION
         n_dict = len(self.global_best_[0])
         n_dataset = len(self.global_best_[0][0]['config'].config)
-        n_dictType = len(self.global_best_[0][0]['config'].config[0])
+        try: 
+            n_dictType = len(self.global_best_[0][0]['config'].config[0])
+        except:
+            n_dictType = n_dataset
+            n_dataset = 1
         voting = []
         for d in range(n_dict):
             new_d = {}
@@ -172,11 +176,17 @@ class mySampler:
         for sampling in self.global_best_: # running over the samples
             for dict_idx, config_dict in enumerate(sampling):
                 for ds_idx, ds in enumerate(config_dict['config'].config):# running over the config_dict
-                    for dt_idx, dt in enumerate(ds):
+                    try:
+                        for dt_idx, dt in enumerate(ds):
+                            try:
+                                voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] += config_dict['CA']
+                            except KeyError:
+                                voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] = config_dict['CA']
+                    except:
                         try:
-                            voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] += config_dict['CA']
+                            voting[dict_idx][ds_names[0]][k_names[ds_idx]][ds] += config_dict['CA']
                         except KeyError:
-                            voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] = config_dict['CA']
+                            voting[dict_idx][ds_names[0]][k_names[ds_idx]][ds] = config_dict['CA']
                             
         #print(voting)
                            

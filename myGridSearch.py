@@ -75,7 +75,18 @@ class myGridSearchCV:
                     k_eta += eta_i * Ki
 
                 # compute performances estimation
-                performances[fold_idx, kw_idx] = self.estimator.score(k_eta, IK_val)
+                
+                #-------------------------
+                # NEW CODE FOR ABSOLUTE VALUE OF CA 
+                score = self.estimator.score(k_eta, IK_val)
+                
+                if score < 0:
+                    score *= -1
+                    #eta = -1*eta
+                #----------------------------------
+                
+                performances[fold_idx, kw_idx]  = score
+                
                 if verbose and (kw_idx+1) % 200 == 0: print("\t\tPerfomances computed for {}".format(kw_idx+1))
                 #if verbose: print("\t\tPerfomances computed for {}: {}".format(kw_idx, performances[-1]))
 
@@ -91,6 +102,16 @@ class myGridSearchCV:
         
         # sum all the kernel matrix
         k_eta = sum(eta_i * Ki for eta_i, Ki in zip(eta, kernelMatrix_list))
+        
+        #-------------------------
+        # NEW CODE FOR ABSOLUTE VALUE OF CA 
+        score = self.estimator.score(k_eta, self.IK_)
 
-        return (self.estimator.score(k_eta, self.IK_), k_wrap_best, eta)
+        if score < 0:
+            score *= -1
+            eta = -1*eta
+        #----------------------------------
+        
+
+        return (score, k_wrap_best, eta)
             

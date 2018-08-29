@@ -17,7 +17,10 @@ class kernelWrapper:
         self._k_list = []
         for dataset_index, Xtr in enumerate(Xtr_list):
             for kernel_index, Ktype in enumerate(Ktype_list):
-                self._k_list.append(kernel(Xtr, Ktype, config[dataset_index][kernel_index], normalize = self.normalize))
+                if len(Xtr_list) > 1:
+                    self._k_list.append(kernel(Xtr, Ktype, config[dataset_index][kernel_index], normalize = self.normalize))
+                else:
+                    self._k_list.append(kernel(Xtr, Ktype, config[kernel_index], normalize = self.normalize))
                 
     def kernelMatrix(self, X_list):
         num_datasets = len(X_list)
@@ -70,8 +73,8 @@ class kernelWrapper:
     def printConfig(self):
         strOut = ""
         for k_idx, kernel in enumerate(self._k_list):
-            if k_idx%len(self.Xtr_list)==0 and k_idx!=0: strOut+="]\n"
-            if k_idx%len(self.Xtr_list)==0: strOut+="["
+            if k_idx%len(self.Ktype_list)==0 and k_idx!=0: strOut+="]\n"
+            if k_idx%len(self.Ktype_list)==0: strOut+="["
             strOut += kernel.K_type+":"+str(kernel.param)+", "
         return strOut+"]\n"
 
@@ -94,7 +97,7 @@ class kernel:
     def kernelMatrix(self, X, y = None):
 
         if self.K_type == 'linear':
-            
+            """
             if y != None:
                 if self.mu == None:
                     reg = Lasso(self.param) #TODO change with a model for classification and let the possibility to specify regression or classification
@@ -102,7 +105,7 @@ class kernel:
                     self.Xtr = self.Xtr[:, mp.where(self_mu != 0)]
 
                 self.X = self.X[:, mp.where(self_mu != 0)]
-            
+            """
             if self.normalize:
                 self.K = normalize(linear_kernel(X,self.Xtr))
             else:
