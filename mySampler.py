@@ -40,8 +40,8 @@ class mySampler:
             
             #-------------------------------
             #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
-            if self.Ptype = 'regression':
-                testLabel = normalize(testLabel)
+            if self.Ptype == 'regression':
+                testLabel /= np.linalg.norm(testLabel)
             #-------------------------------
             
             #------------------------------------------------

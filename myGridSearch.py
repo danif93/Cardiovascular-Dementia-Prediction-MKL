@@ -2,7 +2,7 @@ import numpy as np
 from KernelFile import kernelWrapper
 import itertools
 from sklearn.model_selection import StratifiedKFold, KFold
-from sklearn.preprocessing import normalize
+
 
 class myGridSearchCV:
     
@@ -15,6 +15,8 @@ class myGridSearchCV:
         self.sparsity = sparsity
         self.lamb = lamb
         self.normalize_kernels = normalize_kernels
+        self.Ptype = Ptype
+        
         if  Ptype=="classification":
             self.kFolder = StratifiedKFold(n_splits=self._fold)
         else:
@@ -29,7 +31,7 @@ class myGridSearchCV:
         #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
 
         if self.Ptype == 'regression':
-            y = normalize(y)
+            y /= np.linalg.norm(y)
         #-------------------------------
         
         self.IK_ = np.outer(y, y)
@@ -70,8 +72,8 @@ class myGridSearchCV:
             validLabel = self._y[valid_index]
             
             if self.Ptype == 'regression':
-                trainLabel = normalize(trainLabel)
-                validLabel = normalize(validLabel)
+                trainLabel /= np.linalg.norm(trainLabel)
+                validLabel /= np.linalg.norm(validLabel)
             
             
             IK_tr = np.outer(trainLabel, trainLabel)
@@ -126,8 +128,8 @@ class myGridSearchCV:
         kernelMatrix_list = k_wrap_best.kernelMatrix(Xtr_list).kernelMatrix_list_
         #------------------------------------------
         #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
-        if self.Ptype = 'regression':
-            eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = normalize(self._y) , sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
+        if self.Ptype == 'regression':
+            eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = self._y/np.linalg.norm(self._y) , sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
         else:
             eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = self._y , sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
         #------------------------------------------
