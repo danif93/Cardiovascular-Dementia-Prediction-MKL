@@ -37,6 +37,13 @@ class mySampler:
             trainLabel = y[train_idx]
             testLabel = y[test_idx]
             
+            
+            #-------------------------------
+            #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
+            if self.Ptype = 'regression':
+                testLabel = normalize(testLabel)
+            #-------------------------------
+            
             #------------------------------------------------
             # CENTERING AND NORMALIZING
             

@@ -53,7 +53,7 @@ class kernelWrapper:
         else:
             pred = np.zeros(K_eta_c.shape[0])
             for idx, row in enumerate(K_eta_c):
-                pred[idx] += np.dot(row, tr_label)/np.sum(row)
+                pred[idx] += np.dot(row, tr_label)
                 
             return pred
         

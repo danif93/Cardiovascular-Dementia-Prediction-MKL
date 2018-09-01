@@ -185,8 +185,11 @@ def frobeniusInnerProduct(A, B):
 
 def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype = 'classification'):
     # FIND THE BEST CONFIGURATIONS METRICS
+    if Ptype == 'regression':
+        y_train = normalize(y_train)
+        
     IK_tr = np.outer(y_train, y_train)
-    IK_test = np.outer(y_test, y_test)
+    #IK_test = np.outer(y_test, y_test)
 
     for cl_idx, cl in enumerate(config_list):
         if len(cl) == 1:
@@ -220,8 +223,9 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
             print("\tRecall: {}".format(recall))
             
         else:
-            meanErr = np.mean(np.abs(pred-y_test))
-            varErr = np.var(np.abs(pred-y_test))
+            n = np.linalg.norm(y_test)
+            meanErr = np.mean(np.abs(pred*n-y_test))
+            varErr = np.var(np.abs(pred*n-y_test))
             
             print("Perfomances computed for dictionary settings {}:".format(cl_idx+1))
             print("\tAverage error: {}".format(meanErr))

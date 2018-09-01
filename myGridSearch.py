@@ -2,6 +2,7 @@ import numpy as np
 from KernelFile import kernelWrapper
 import itertools
 from sklearn.model_selection import StratifiedKFold, KFold
+from sklearn.preprocessing import normalize
 
 class myGridSearchCV:
     
@@ -21,7 +22,16 @@ class myGridSearchCV:
        
     
     def fit(self, Xtr_list, y):
+        
         self._y = y
+        
+        #-------------------------------
+        #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
+
+        if self.Ptype == 'regression':
+            y = normalize(y)
+        #-------------------------------
+        
         self.IK_ = np.outer(y, y)
         self.Xtr_list_ = Xtr_list
         
@@ -50,8 +60,24 @@ class myGridSearchCV:
             #self.valid_list_ = [ Xtr[valid_index] for Xtr in self.Xtr_list_]
             train_list = [ Xtr[train_index] for Xtr in Xtr_list]
             valid_list = [ Xtr[valid_index] for Xtr in Xtr_list]
-            IK_tr = np.outer(self._y[train_index], self._y[train_index])
-            IK_val = np.outer(self._y[valid_index], self._y[train_index])
+            
+            
+
+            #-------------------------------
+            #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
+            
+            trainLabel = self._y[train_index]
+            validLabel = self._y[valid_index]
+            
+            if self.Ptype == 'regression':
+                trainLabel = normalize(trainLabel)
+                validLabel = normalize(validLabel)
+            
+            
+            IK_tr = np.outer(trainLabel, trainLabel)
+            IK_val = np.outer(validLabel, trainLabel)
+            
+            #-------------------------------
             
             # list of kernels_wrappers. To each possible configuration of the hyperparameter a kernels_wrapper is given 
             self.k_wrap_list_ = []
@@ -66,7 +92,7 @@ class myGridSearchCV:
                 kernelMatrix_list = kw_wrap.kernelMatrix(train_list).kernelMatrix_list_
 
                 # compute eta vector
-                eta = self.estimator.computeEta(kernelMatrix_list, IK_tr, y = self._y[train_index], sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
+                eta = self.estimator.computeEta(kernelMatrix_list, IK_tr, y = trainLabel, sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
 
                 # compute k_eta (approximation) for the validation set
                 kernelMatrix_list = kw_wrap.kernelMatrix(valid_list).kernelMatrix_list_
@@ -98,7 +124,13 @@ class myGridSearchCV:
         # recompute the eta for the selected configuration
         k_wrap_best = kernelWrapper(self.Xtr_list_, self.Ktype_list, self.configuration_list_[selected], normalize = self.normalize_kernels)
         kernelMatrix_list = k_wrap_best.kernelMatrix(Xtr_list).kernelMatrix_list_
-        eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = self._y , sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
+        #------------------------------------------
+        #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
+        if self.Ptype = 'regression':
+            eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = normalize(self._y) , sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
+        else:
+            eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = self._y , sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
+        #------------------------------------------
         
         # sum all the kernel matrix
         k_eta = sum(eta_i * Ki for eta_i, Ki in zip(eta, kernelMatrix_list))
