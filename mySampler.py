@@ -40,8 +40,8 @@ class mySampler:
             
             #-------------------------------
             #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
-            if self.Ptype == 'regression':
-                testLabel /= np.linalg.norm(testLabel)
+            #if self.Ptype == 'regression':
+                #testLabel /= np.linalg.norm(testLabel)
             #-------------------------------
             
             #------------------------------------------------
@@ -84,8 +84,12 @@ class mySampler:
                                         lamb=self.lamb, normalize_kernels=self.normalize_kernels).fit(trainSet_list, trainLabel)
                 
                 sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose = verbose) # it was false
-                
-                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel, estimator, Ptype=self.Ptype)
+                #-------------------------------
+                #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
+                if self.Ptype == 'regression':
+                    trLabNorm = np.linalg.norm(trainLabel)
+                #-------------------------------
+                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel/trLabNorm, estimator, Ptype=self.Ptype)
                 
                 # print predictions:
                 #if verbose: print(pred)
@@ -106,8 +110,8 @@ class mySampler:
                             print("eta vector: {}\n".format(b["eta"]))
                         print("\n\tCompleted in {} minutes".format((time.mktime(time.gmtime())-initTime)/60))
                 else:
-                    meanErr = np.mean(np.abs(pred-testLabel))
-                    varErr = np.var(np.abs(pred-testLabel))
+                    meanErr = np.mean(np.abs(pred*trLabNorm-testLabel))
+                    varErr = np.var(np.abs(pred*trLabNorm-testLabel))
                     bestOverDict.append({"CA":sel_CA, "meanErr":meanErr, "varErr":varErr, "config":sel_kWrapp, "eta":weights})
                     if verbose:
                         print("\tResult of {}:".format(split_idx+1))

@@ -129,7 +129,7 @@ class myGridSearchCV:
         #------------------------------------------
         #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
         if self.Ptype == 'regression':
-            eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = self._y/np.linalg.norm(self._y) , sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
+            eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = self._y/np.linalg.norm(self._y), sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
         else:
             eta = self.estimator.computeEta(kernelMatrix_list, self.IK_, y = self._y , sparsity = self.sparsity, lamb = self.lamb, verbose = verbose)
         #------------------------------------------
