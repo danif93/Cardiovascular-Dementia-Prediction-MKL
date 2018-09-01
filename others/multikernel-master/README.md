@@ -1,2 +1,0 @@
-# multikernel
-Multiple Kernel Learning

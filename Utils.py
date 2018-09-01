@@ -187,7 +187,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
     # FIND THE BEST CONFIGURATIONS METRICS
     if Ptype == 'regression':
         n = np.linalg.norm(y_train)
-        y_train /= np.linalg.norm(y_train)
+        y_train /= n
         
     IK_tr = np.outer(y_train, y_train)
     #IK_test = np.outer(y_test, y_test)
