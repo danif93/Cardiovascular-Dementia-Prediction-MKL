@@ -69,7 +69,7 @@ class centeredKernelAlignment:
                 M -= lamb*np.identity(M.shape[0])
                     
             eta = np.dot(np.linalg.pinv(M), a)
-            #eta /= np.linalg.norm(eta)
+            eta /= np.linalg.norm(eta)
             
         return eta 
 
