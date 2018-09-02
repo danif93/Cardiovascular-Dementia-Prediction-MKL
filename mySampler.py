@@ -23,7 +23,11 @@ class mySampler:
         self.normalizing = normalizing
         self.Ptype = Ptype
         
-    def sample(self, kernelDict_list, estimator, X_list, y, valid_fold=3, verbose=False, exclusion_list = None):
+        
+    def sample(self, kernelDict_list, estimator, X_list, y, valid_fold=3, verbose=False, exclusion_list = None, fileToWrite = None, header = ''):
+        self.fileToWrite = fileToWrite
+        self.header = header
+        
         # exclusion_list in the form list of lists, one per dataset
 
         global_best = []
@@ -252,3 +256,8 @@ class mySampler:
                         outcome_dict[key] = (np.mean(value, axis = 0), np.var(value, axis = 0))
                                             
             print(outcome_dict)
+            
+            if self.fileToWrite is not None:
+                with open(self.fileToWrite, "a") as myfile:
+                    myfile.write(header)
+                    myfile.write("Outcome Dict: {}\n".format(outcome_dict))

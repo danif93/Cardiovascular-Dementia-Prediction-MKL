@@ -183,7 +183,7 @@ def frobeniusInnerProduct(A, B):
     return np.dot(A, B)
 
 
-def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype = 'classification'):
+def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype = 'classification', fileToWrite = None, header = ''):
     # FIND THE BEST CONFIGURATIONS METRICS
     if Ptype == 'regression':
         n = np.linalg.norm(y_train)
@@ -223,6 +223,14 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
             print("\tPrecision: {}".format(precision))
             print("\tRecall: {}".format(recall))
             
+            if fileToWrite is not None:
+                with open(fileToWrite, "a") as myfile:
+                    myfile.write(header)
+                    myfile.write("Accuracy: {}\n".format(accuracy))
+                    myfile.write("Precision: {}\n".format(precision))
+                    myfile.write("Recall: {}\n".format(recall))
+                    
+            
         else:
             
             meanErr = np.mean(np.abs(pred*n-y_test))
@@ -233,6 +241,11 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
             print("\tError variance: {}".format(varErr))
             print("\tPred: {}".format(pred))
             print("\tPred_multiplied: {}".format(pred*n))
+            if fileToWrite is not None:
+                with open(fileToWrite, "a") as myfile:
+                    myfile.write(header)
+                    myfile.write("Average error: {}".format(meanErr))
+                    myfile.write("Error variance: {}".format(varErr))
 
 
 # END GENERAL UTIL FUNCTIONS
