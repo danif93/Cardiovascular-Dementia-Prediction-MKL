@@ -199,9 +199,7 @@ class mySampler:
                             voting[dict_idx][ds_names[0]][k_names[ds_idx]][ds] += config_dict['CA']
                         except KeyError:
                             voting[dict_idx][ds_names[0]][k_names[ds_idx]][ds] = config_dict['CA']
-                            
-        #print(voting)
-                           
+                                                       
         # RECOVERING CONFIG FROM voting
         winning_dict = []
         winning_list = []
