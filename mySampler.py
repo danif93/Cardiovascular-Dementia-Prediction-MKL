@@ -224,7 +224,7 @@ class mySampler:
         
         return (winning_dict, winning_list)
     
-    def performancesFeatures(self):
+    def performancesFeatures(self, lock = None):
         
         for c_idx, config in enumerate(self.global_best_[0]):
             print("statistics of configuration {}".format(c_idx+1))
@@ -257,7 +257,8 @@ class mySampler:
                                             
             print(outcome_dict)
             
-            if self.fileToWrite is not None:
-                with open(self.fileToWrite, "a") as myfile:
-                    myfile.write(header)
-                    myfile.write("Outcome Dict: {}\n".format(outcome_dict))
+            if self.fileToWrite is not None and lock is not None:
+                with lock:
+                    with open(self.fileToWrite, "a") as myfile:
+                        myfile.write(header)
+                        myfile.write("Outcome Dict: {}\n".format(outcome_dict))

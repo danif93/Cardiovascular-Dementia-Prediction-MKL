@@ -183,7 +183,7 @@ def frobeniusInnerProduct(A, B):
     return np.dot(A, B)
 
 
-def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype = 'classification', fileToWrite = None, header = ''):
+def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype = 'classification', lock = None, fileToWrite = None, header = ''):
     # FIND THE BEST CONFIGURATIONS METRICS
     if Ptype == 'regression':
         n = np.linalg.norm(y_train)
@@ -224,11 +224,12 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
             print("\tRecall: {}".format(recall))
             
             if fileToWrite is not None:
-                with open(fileToWrite, "a") as myfile:
-                    myfile.write(header)
-                    myfile.write("Accuracy: {}\n".format(accuracy))
-                    myfile.write("Precision: {}\n".format(precision))
-                    myfile.write("Recall: {}\n".format(recall))
+                with lock:
+                    with open(fileToWrite, "a") as myfile:
+                        myfile.write(header)
+                        myfile.write("Accuracy: {}\n".format(accuracy))
+                        myfile.write("Precision: {}\n".format(precision))
+                        myfile.write("Recall: {}\n".format(recall))
                     
             
         else:
@@ -242,10 +243,11 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
             print("\tPred: {}".format(pred))
             print("\tPred_multiplied: {}".format(pred*n))
             if fileToWrite is not None:
-                with open(fileToWrite, "a") as myfile:
-                    myfile.write(header)
-                    myfile.write("Average error: {}".format(meanErr))
-                    myfile.write("Error variance: {}".format(varErr))
+                with lock:
+                    with open(fileToWrite, "a") as myfile:
+                        myfile.write(header)
+                        myfile.write("Average error: {}".format(meanErr))
+                        myfile.write("Error variance: {}".format(varErr))
 
 
 # END GENERAL UTIL FUNCTIONS
