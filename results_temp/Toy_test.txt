@@ -1,0 +1,240 @@
+Toy Polynomial - Gaussian 
+Centering - Normalizing
+Accuracy: 0.8533333333333334
+Precision: 0.825
+Recall: 0.8918918918918919
+
+Toy Polynomial - Gaussian 
+Normalizing
+Accuracy: 0.88
+Precision: 0.85
+Recall: 0.918918918918919
+
+Toy Polynomial - Gaussian 
+Centering - Normalizing
+Accuracy: 0.8933333333333333
+Precision: 0.8717948717948718
+Recall: 0.918918918918919
+
+Toy Polynomial - Gaussian 
+Normalizing
+Accuracy: 0.8533333333333334
+Precision: 0.8421052631578947
+Recall: 0.8648648648648649
+
+Toy Polynomial - Gaussian 
+Basic
+Accuracy: 0.84
+Precision: 0.8378378378378378
+Recall: 0.8378378378378378
+
+Toy Polynomial - Gaussian 
+Centering
+Accuracy: 0.88
+Precision: 0.85
+Recall: 0.918918918918919
+
+Toy Polynomial - Gaussian 
+Basic
+Accuracy: 0.8666666666666667
+Precision: 0.8461538461538461
+Recall: 0.8918918918918919
+
+Toy Polynomial - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.8133333333333334
+Precision: 0.8108108108108109
+Recall: 0.8108108108108109
+
+Toy Polynomial - Gaussian 
+Centering
+Accuracy: 0.9066666666666666
+Precision: 0.875
+Recall: 0.9459459459459459
+
+Toy Polynomial - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.8266666666666667
+Precision: 0.8333333333333334
+Recall: 0.8108108108108109
+
+Toy Polynomial - Gaussian 
+Centering - Normalizing - K Normalizing
+Accuracy: 0.72
+Precision: 0.7352941176470589
+Recall: 0.6756756756756757
+
+Toy Polynomial - Gaussian 
+Centering - Normalizing - K Normalizing
+Accuracy: 0.8266666666666667
+Precision: 0.8333333333333334
+Recall: 0.8108108108108109
+
+Toy Polynomial - Gaussian 
+Centering - K Normalizing
+Accuracy: 0.8266666666666667
+Precision: 0.8157894736842105
+Recall: 0.8378378378378378
+
+Toy Polynomial - Gaussian 
+K Normalizing
+Accuracy: 0.8533333333333334
+Precision: 0.825
+Recall: 0.8918918918918919
+
+Toy Polynomial - Gaussian 
+Centering - K Normalizing
+Accuracy: 0.8266666666666667
+Precision: 0.8333333333333334
+Recall: 0.8108108108108109
+
+Toy Polynomial - Gaussian 
+K Normalizing
+Accuracy: 0.8933333333333333
+Precision: 0.8717948717948718
+Recall: 0.918918918918919
+
+Toy Polynomial - Gaussian 
+Normalizing - K Normalizing
+Accuracy: 0.7866666666666666
+Precision: 0.7837837837837838
+Recall: 0.7837837837837838
+
+Toy Polynomial - Gaussian 
+Normalizing - K Normalizing
+Accuracy: 0.8933333333333333
+Precision: 0.8717948717948718
+Recall: 0.918918918918919
+
+Toy Polynomial - Gaussian 
+L1 - Centering - K Normalizing
+Accuracy: 0.6533333333333333
+Precision: 0.6486486486486487
+Recall: 0.6486486486486487
+
+Toy Polynomial - Gaussian 
+L1 - Centering - K Normalizing
+Accuracy: 0.8
+Precision: 0.8055555555555556
+Recall: 0.7837837837837838
+
+Toy Sigmoid - Gaussian 
+Centering
+Accuracy: 0.84
+Precision: 0.8205128205128205
+Recall: 0.8648648648648649
+
+Toy Sigmoid - Gaussian 
+Normalizing
+Accuracy: 0.84
+Precision: 0.8048780487804879
+Recall: 0.8918918918918919
+
+Toy Sigmoid - Gaussian 
+Centering
+Accuracy: 0.8
+Precision: 0.8055555555555556
+Recall: 0.7837837837837838
+
+Toy Sigmoid - Gaussian 
+Normalizing
+Accuracy: 0.8266666666666667
+Precision: 0.8529411764705882
+Recall: 0.7837837837837838
+
+Toy Sigmoid - Gaussian 
+Centering - Normalizing
+Accuracy: 0.84
+Precision: 0.8048780487804879
+Recall: 0.8918918918918919
+
+Toy Sigmoid - Gaussian 
+Centering - Normalizing
+Accuracy: 0.8666666666666667
+Precision: 0.8461538461538461
+Recall: 0.8918918918918919
+
+Toy Sigmoid - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.8533333333333334
+Precision: 0.825
+Recall: 0.8918918918918919
+
+Toy Sigmoid - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.8133333333333334
+Precision: 0.8285714285714286
+Recall: 0.7837837837837838
+
+Toy Sigmoid - Gaussian 
+Basic
+Accuracy: 0.8133333333333334
+Precision: 0.8108108108108109
+Recall: 0.8108108108108109
+
+Toy Sigmoid - Gaussian 
+Basic
+Accuracy: 0.76
+Precision: 0.7714285714285715
+Recall: 0.7297297297297297
+
+Toy Sigmoid - Gaussian 
+Centering - K Normalizing
+Accuracy: 0.8533333333333334
+Precision: 0.8421052631578947
+Recall: 0.8648648648648649
+
+Toy Sigmoid - Gaussian 
+Centering - K Normalizing
+Accuracy: 0.8666666666666667
+Precision: 0.8461538461538461
+Recall: 0.8918918918918919
+
+Toy Sigmoid - Gaussian 
+Centering - Normalizing - K Normalizing
+Accuracy: 0.8266666666666667
+Precision: 0.8
+Recall: 0.8648648648648649
+
+Toy Sigmoid - Gaussian 
+Centering - Normalizing - K Normalizing
+Accuracy: 0.7733333333333333
+Precision: 0.7777777777777778
+Recall: 0.7567567567567568
+
+Toy Sigmoid - Gaussian 
+K Normalizing
+Accuracy: 0.8266666666666667
+Precision: 0.8
+Recall: 0.8648648648648649
+
+Toy Sigmoid - Gaussian 
+K Normalizing
+Accuracy: 0.7866666666666666
+Precision: 0.7692307692307693
+Recall: 0.8108108108108109
+
+Toy Sigmoid - Gaussian 
+Normalizing - K Normalizing
+Accuracy: 0.84
+Precision: 0.8048780487804879
+Recall: 0.8918918918918919
+
+Toy Sigmoid - Gaussian 
+Normalizing - K Normalizing
+Accuracy: 0.8266666666666667
+Precision: 0.8529411764705882
+Recall: 0.7837837837837838
+
+Toy Sigmoid - Gaussian 
+L1 - Centering - K Normalizing
+Accuracy: 0.76
+Precision: 0.7567567567567568
+Recall: 0.7567567567567568
+
+Toy Sigmoid - Gaussian 
+L1 - Centering - K Normalizing
+Accuracy: 0.7866666666666666
+Precision: 0.7837837837837838
+Recall: 0.7837837837837838
+

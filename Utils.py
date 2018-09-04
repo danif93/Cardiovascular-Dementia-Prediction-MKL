@@ -183,7 +183,8 @@ def frobeniusInnerProduct(A, B):
     return np.dot(A, B)
 
 
-def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype = 'classification', lock = None, fileToWrite = None, header = ''):
+def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype='classification', lock=None, fileToWrite=None, header='', verbose=False):
+    
     # FIND THE BEST CONFIGURATIONS METRICS
     if Ptype == 'regression':
         n = np.linalg.norm(y_train)
@@ -200,7 +201,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
         kernelMatrix_list = found_kWrap.kernelMatrix(train_list).kernelMatrix_list_
 
         # compute eta vector
-        eta = estimator.computeEta(kernelMatrix_list, IK_tr, y = y_train, verbose = True)
+        eta = estimator.computeEta(kernelMatrix_list, IK_tr, y = y_train, verbose = verbose)
 
         # compute k_eta (approximation) for the validation set
         #kernelMatrix_list = found_kWrap.kernelMatrix(ds_test).kernelMatrix_list_
@@ -217,11 +218,12 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
             accuracy = accuracy_score(y_test, pred)
             precision = precision_score(y_test, pred)
             recall = recall_score(y_test, pred)
-        
-            print("Perfomances computed for dictionary settings {}:".format(cl_idx+1))
-            print("\tAccuracy: {}".format(accuracy))
-            print("\tPrecision: {}".format(precision))
-            print("\tRecall: {}".format(recall))
+            
+            if verbose:
+                print("Perfomances computed for dictionary settings {}:".format(cl_idx+1))
+                print("\tAccuracy: {}".format(accuracy))
+                print("\tPrecision: {}".format(precision))
+                print("\tRecall: {}".format(recall))
             
             if fileToWrite is not None:
                 with lock:
@@ -229,25 +231,26 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
                         myfile.write(header)
                         myfile.write("Accuracy: {}\n".format(accuracy))
                         myfile.write("Precision: {}\n".format(precision))
-                        myfile.write("Recall: {}\n".format(recall))
+                        myfile.write("Recall: {}\n\n".format(recall))
                     
             
-        else:
-            
+        else:          
             meanErr = np.mean(np.abs(pred*n-y_test))
             varErr = np.var(np.abs(pred*n-y_test))
             
-            print("Perfomances computed for dictionary settings {}:".format(cl_idx+1))
-            print("\tAverage error: {}".format(meanErr))
-            print("\tError variance: {}".format(varErr))
-            print("\tPred: {}".format(pred))
-            print("\tPred_multiplied: {}".format(pred*n))
+            if verbose:
+                print("Perfomances computed for dictionary settings {}:".format(cl_idx+1))
+                print("\tAverage error: {}".format(meanErr))
+                print("\tError variance: {}".format(varErr))
+                print("\tPred: {}".format(pred))
+                print("\tPred_multiplied: {}".format(pred*n))
+                
             if fileToWrite is not None:
                 with lock:
                     with open(fileToWrite, "a") as myfile:
                         myfile.write(header)
-                        myfile.write("Average error: {}".format(meanErr))
-                        myfile.write("Error variance: {}".format(varErr))
+                        myfile.write("Average error: {}\n".format(meanErr))
+                        myfile.write("Error variance: {}\n\n".format(varErr))
 
 
 # END GENERAL UTIL FUNCTIONS

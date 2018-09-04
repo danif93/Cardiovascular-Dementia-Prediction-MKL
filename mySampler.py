@@ -259,4 +259,5 @@ class mySampler:
                 with lock:
                     with open(fileToWrite, "a") as myfile:
                         myfile.write(header)
-                        myfile.write("Outcome Dict: {}\n".format(outcome_dict))
+                        myfile.write("Outcome Dict: {}\n\n".format(outcome_dict))
+                        
