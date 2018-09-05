@@ -225,6 +225,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
                 print("\tPrecision: {}".format(precision))
                 print("\tRecall: {}".format(recall))
             
+            """
             if fileToWrite is not None:
                 with lock:
                     with open(fileToWrite, "a") as myfile:
@@ -232,7 +233,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
                         myfile.write("Accuracy: {}\n".format(accuracy))
                         myfile.write("Precision: {}\n".format(precision))
                         myfile.write("Recall: {}\n\n".format(recall))
-                    
+            """        
             
         else:          
             meanErr = np.mean(np.abs(pred*n-y_test))
@@ -244,14 +245,15 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
                 print("\tError variance: {}".format(varErr))
                 print("\tPred: {}".format(pred))
                 print("\tPred_multiplied: {}".format(pred*n))
-                
+            
+            """
             if fileToWrite is not None:
                 with lock:
                     with open(fileToWrite, "a") as myfile:
                         myfile.write(header)
                         myfile.write("Average error: {}\n".format(meanErr))
                         myfile.write("Error variance: {}\n\n".format(varErr))
-
+            """
 
 # END GENERAL UTIL FUNCTIONS
 

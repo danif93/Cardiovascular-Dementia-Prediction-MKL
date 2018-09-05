@@ -253,11 +253,14 @@ class mySampler:
                     else:
                         outcome_dict[key] = (np.mean(value, axis = 0), np.var(value, axis = 0))
                                             
-            print(outcome_dict)
             
+            """
             if fileToWrite is not None and lock is not None:
                 with lock:
                     with open(fileToWrite, "a") as myfile:
                         myfile.write(header)
                         myfile.write("Outcome Dict: {}\n\n".format(outcome_dict))
+            """
+            return outcome_dict
+            
                         
