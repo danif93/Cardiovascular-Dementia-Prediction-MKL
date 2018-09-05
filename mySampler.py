@@ -8,6 +8,87 @@ import myGridSearch as mgs
 import Utils as ut
 import time
 
+class mySampleWrapper:
+    
+    def __init__(self, lamb_list, n_splits=3, test_size=.25, Ptype="classification", merging = False, sparsity=False, normalize_kernels=False, centering=False, normalizing=False):
+
+        self.samplers = []
+        self.lamb_list = lamb_list
+        self.sparsity = sparsity
+        
+        for lamb in lamb_list:
+            
+            if sparsity == False:
+                sampler = mySampler(n_splits, test_size, Ptype, merging, lamb = lamb, normalize_kernels=normalize_kernels, centering=centering, normalizing=normalizing)
+                
+                self.samplers.append(sampler)
+                
+            else:
+                sampler = mySampler(n_splits, test_size, Ptype, merging, sparsity=lamb, normalize_kernels=normalize_kernels, centering=centering, normalizing=normalizing)
+                
+                self.samplers.append(sampler)
+                
+                
+            
+    def sample(self, kernelDict_list, estimator, X_list, y, valid_fold=3, verbose=False, exclusion_list = None):
+        
+        for sampler in self.samplers:
+            sampler.sample(kernelDict_list, estimator, X_list, y, valid_fold, verbose, exclusion_list)
+            
+        return self
+    
+    
+    def votingOverCA(self, ds_names, k_names):
+        
+        self.winning_sampler_list = [] 
+        self.winning_dict_list = []
+        self.winning_list_list = []
+        self.winning_lamb_list = []
+        
+        for sampler in self.samplers:
+            sampler.votingOverCA(ds_names, k_names)
+            sampler.performancesFeatures()
+            
+        self.num_config = len(self.samplers[0].outcome_dict_list)
+        
+        for config_idx in range(self.num_config):
+            ca_list = []
+            for sampler in self.samplers:
+                ca_list.append(sampler.outcome_dict_list[config_idx]['CA'][0])
+            
+            winner = np.argmax(ca_list)
+            self.winning_sampler_list.append(winner)
+            self.winning_dict_list.append(self.samplers[winner].winning_dict[config_idx])
+            self.winning_list_list.append(self.samplers[winner].winning_list[config_idx])
+            self.winning_lamb_list.append(self.lamb_list[winner])
+            
+        print("self.winning_sampler_list: {}".format(self.winning_sampler_list))
+        print("self.winning_dict_list: {}".format(self.winning_dict_list))
+        print("self.winning_list_list: {}".format(self.winning_list_list))
+        print("self.winning_lamb_list: {}".format(self.winning_lamb_list))
+        
+        return self.winning_dict_list, self.winning_list_list, self.winning_lamb_list, self.sparsity
+    
+    
+    def performancesFeatures(self, fileToWrite = None, header = '', lock = None):
+        
+        self.outcome_dict_list = []
+        
+        for config_idx in range(self.num_config):
+            outcome_dict = self.samplers[self.winning_sampler_list[config_idx]].outcome_dict_list[config_idx]
+            outcome_dict['lambda'] = self.winning_lamb_list[config_idx]
+            self.outcome_dict_list.append(outcome_dict)
+            
+        
+        if fileToWrite is not None and lock is not None:
+            with lock:
+                with open(fileToWrite, "a") as myfile:
+                    myfile.write(header)
+                    for outcome_dict in self.outcome_dict_list:
+                        myfile.write("Outcome Dict: {}\n\n".format(outcome_dict))
+
+        return self
+
 
 class mySampler:
     def __init__(self, n_splits=3, test_size=.25, Ptype="classification", merging = False, sparsity=0, lamb=0, normalize_kernels=False, centering=False, normalizing=False):
@@ -23,9 +104,8 @@ class mySampler:
         self.normalizing = normalizing
         self.Ptype = Ptype
         
-        
     def sample(self, kernelDict_list, estimator, X_list, y, valid_fold=3, verbose=False, exclusion_list = None):
-        
+            
         # exclusion_list in the form list of lists, one per dataset
 
         global_best = []
@@ -203,8 +283,8 @@ class mySampler:
                             voting[dict_idx][ds_names[0]][k_names[ds_idx]][ds] = config_dict['CA']
                                                        
         # RECOVERING CONFIG FROM voting
-        winning_dict = []
-        winning_list = []
+        self.winning_dict = []
+        self.winning_list = []
         for config_dict in voting:
             new_c = {}
             new_c_l = []
@@ -217,15 +297,16 @@ class mySampler:
                     new_ds_l.append(max_v)
                 new_c[ds_key] = new_ds
                 new_c_l.append(new_ds_l)
-            winning_dict.append(new_c)
-            winning_list.append(new_c_l)
+            self.winning_dict.append(new_c)
+            self.winning_list.append(new_c_l)
         
-        return (winning_dict, winning_list)
+        return (self.winning_dict, self.winning_list)
     
     def performancesFeatures(self, fileToWrite = None, header = '', lock = None):
         
+        self.outcome_dict_list = []
+        
         for c_idx, config in enumerate(self.global_best_[0]):
-            print("statistics of configuration {}".format(c_idx+1))
             outcome_dict = {}
             outcome_dict['config'] = {}
             for res in self.global_best_: #one res per sample
@@ -252,12 +333,14 @@ class mySampler:
                         outcome_dict[key] = (np.mean(value), np.var(value))
                     else:
                         outcome_dict[key] = (np.mean(value, axis = 0), np.var(value, axis = 0))
-                                            
-            print(outcome_dict)
+                        
+            self.outcome_dict_list.append(outcome_dict)
             
             if fileToWrite is not None and lock is not None:
                 with lock:
                     with open(fileToWrite, "a") as myfile:
                         myfile.write(header)
                         myfile.write("Outcome Dict: {}\n\n".format(outcome_dict))
+                        
+        return self
                         

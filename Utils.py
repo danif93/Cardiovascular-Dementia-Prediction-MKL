@@ -6,6 +6,7 @@ import pandas as pd
 
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import normalize
+#from sklearn.metrics import precision_score, recall_score, balanced_accuracy_score
 from sklearn.metrics import precision_score, recall_score, accuracy_score
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LassoCV
@@ -183,7 +184,7 @@ def frobeniusInnerProduct(A, B):
     return np.dot(A, B)
 
 
-def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype='classification', lock=None, fileToWrite=None, header='', verbose=False):
+def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, lamb_list, sparsity, Ptype='classification', lock=None, fileToWrite=None, header='', verbose=False):
     
     # FIND THE BEST CONFIGURATIONS METRICS
     if Ptype == 'regression':
@@ -201,7 +202,14 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
         kernelMatrix_list = found_kWrap.kernelMatrix(train_list).kernelMatrix_list_
 
         # compute eta vector
-        eta = estimator.computeEta(kernelMatrix_list, IK_tr, y = y_train, verbose = verbose)
+        #---------------------------------------------
+        #NEW CODE to modify for OLS
+        lamb = lamb_list[cl_idx]
+        if sparsity:
+            eta = estimator.computeEta(kernelMatrix_list, IK_tr, y = y_train, sparsity = lamb, verbose = verbose)
+        else:
+            eta = estimator.computeEta(kernelMatrix_list, IK_tr, y = y_train, lamb = lamb, verbose = verbose)
+        #---------------------------------------------
 
         # compute k_eta (approximation) for the validation set
         #kernelMatrix_list = found_kWrap.kernelMatrix(ds_test).kernelMatrix_list_
@@ -231,7 +239,8 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
                         myfile.write(header)
                         myfile.write("Accuracy: {}\n".format(accuracy))
                         myfile.write("Precision: {}\n".format(precision))
-                        myfile.write("Recall: {}\n\n".format(recall))
+                        myfile.write("Recall: {}\n".format(recall))
+                        myfile.write("Lambda: {}\n\n".format(lamb))
                     
             
         else:          
@@ -250,7 +259,8 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
                     with open(fileToWrite, "a") as myfile:
                         myfile.write(header)
                         myfile.write("Average error: {}\n".format(meanErr))
-                        myfile.write("Error variance: {}\n\n".format(varErr))
+                        myfile.write("Error variance: {}\n".format(varErr))
+                        myfile.write("Lambda: {}\n\n".format(lamb))
 
 
 # END GENERAL UTIL FUNCTIONS
