@@ -61,11 +61,13 @@ class mySampleWrapper:
             self.winning_dict_list.append(self.samplers[winner].winning_dict[config_idx])
             self.winning_list_list.append(self.samplers[winner].winning_list[config_idx])
             self.winning_lamb_list.append(self.lamb_list[winner])
-            
+        
+        """
         print("self.winning_sampler_list: {}".format(self.winning_sampler_list))
         print("self.winning_dict_list: {}".format(self.winning_dict_list))
         print("self.winning_list_list: {}".format(self.winning_list_list))
         print("self.winning_lamb_list: {}".format(self.winning_lamb_list))
+        """
         
         return self.winning_dict_list, self.winning_list_list, self.winning_lamb_list, self.sparsity
     
