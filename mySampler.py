@@ -10,12 +10,11 @@ import time
 
 
 class mySampler:
-    def __init__(self, n_splits=3, test_size=.25, Ptype="classification", merging = False, sparsity=0, lamb=0, normalize_kernels=False, centering=False, normalizing=False):
+    def __init__(self, n_splits=3, test_size=.25, Ptype="classification", sparsity=0, lamb=0, normalize_kernels=False, centering=False, normalizing=False):
         if Ptype=="classification":
             self._sampler = StratifiedShuffleSplit(n_splits=n_splits, test_size=test_size)
         else:
             self._sampler = ShuffleSplit(n_splits=n_splits, test_size=test_size)
-        self.merging = merging
         self.sparsity = sparsity
         self.lamb = lamb
         self.normalize_kernels = normalize_kernels
@@ -124,41 +123,6 @@ class mySampler:
                             print(b["config"].printConfig())
                             print("eta vector: {}\n".format(b["eta"]))
                         print("\n\tCompleted in {} minutes".format((time.mktime(time.gmtime())-initTime)/60))
-                            
-            """       
-            if self.merging:
-
-                if verbose: print("\tMearging config of split {} ...".format(split_idx+1))
-
-                best_kernel_dict = {}
-                for kernel_dict_index, elem in enumerate(bestOverDict):
-                    kWrap = elem["config"]
-                    for K_type, param in kWrap.getConfig().items():
-                        try:
-                            best_kernel_dict[K_type].append(param)
-                        except:
-                            best_kernel_dict[K_type] = []
-                            best_kernel_dict[K_type].append(param)
-
-                for key in best_kernel_dict.keys():
-                    best_kernel_dict[key] = np.unique(best_kernel_dict[key])
-
-                if verbose:
-                    print("\tMearging config of split {} completed. New kernel dict:".format(split_idx+1))
-                    for k, v in best_kernel_dict.items():
-                        print("\t\t{} : {}".format(k,v))
-
-                print("\tComputing performances using the merged dictionary")
-                gs = mgs.myGridSearchCV(estimator, best_kernel_dict, fold = valid_fold, sparsity = self.sparsity, lamb = self.lamb, normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
-                sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose= verbose) #it was true
-                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel, estimator)
-                sel_accuracy = accuracy_score(testLabel, pred)
-                precision = precision_score(testLabel, pred)
-                recall = recall_score(testLabel, pred)
-                global_best.append({"CA":sel_CA, "Accuracy":sel_accuracy, "Precision":precision, "Recall":recall, "config":sel_kWrapp, "eta":weights})
-                
-            else:
-            """
             
             global_best.append(bestOverDict)
 
@@ -222,10 +186,9 @@ class mySampler:
         
         return (winning_dict, winning_list)
     
-    def performancesFeatures(self, fileToWrite = None, header = '', lock = None):
+    def performancesFeatures(self, fileToWrite=None, header='', lock=None, verbose=False):
         
         for c_idx, config in enumerate(self.global_best_[0]):
-            print("statistics of configuration {}".format(c_idx+1))
             outcome_dict = {}
             outcome_dict['config'] = {}
             for res in self.global_best_: #one res per sample
@@ -253,14 +216,16 @@ class mySampler:
                     else:
                         outcome_dict[key] = (np.mean(value, axis = 0), np.var(value, axis = 0))
                                             
+            if verbose:
+                print("statistics of configuration {}".format(c_idx+1))
+                print(outcome_dict)
             
-            """
             if fileToWrite is not None and lock is not None:
                 with lock:
                     with open(fileToWrite, "a") as myfile:
                         myfile.write(header)
                         myfile.write("Outcome Dict: {}\n\n".format(outcome_dict))
-            """
+            
             return outcome_dict
             
                         

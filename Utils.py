@@ -183,7 +183,7 @@ def frobeniusInnerProduct(A, B):
     return np.dot(A, B)
 
 
-def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype='classification', lock=None, fileToWrite=None, header='', verbose=False):
+def testConfigurations(estimator, penalty_type, parameter, y_train, y_test, config_list, train_list, test_list, kernel_types, Ptype='classification', lock=None, fileToWrite=None, header='', verbose=False):
     
     # FIND THE BEST CONFIGURATIONS METRICS
     if Ptype == 'regression':
@@ -201,15 +201,12 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
         kernelMatrix_list = found_kWrap.kernelMatrix(train_list).kernelMatrix_list_
 
         # compute eta vector
-        eta = estimator.computeEta(kernelMatrix_list, IK_tr, y = y_train, verbose = verbose)
-
-        # compute k_eta (approximation) for the validation set
-        #kernelMatrix_list = found_kWrap.kernelMatrix(ds_test).kernelMatrix_list_
-        #k_eta = np.zeros(kernelMatrix_list[0].shape)
-        #for eta_i, Ki in zip(eta, kernelMatrix_list):
-        #    k_eta += eta_i * Ki
-        #performances = estimator.score(k_eta, IK_test)
-
+        if penalty_type == 'l1':
+            eta = estimator.computeEta(kernelMatrix_list, IK_tr, y=y_train, sparsity=parameter, verbose=verbose)
+        elif penalty_type == 'l2':
+            eta = estimator.computeEta(kernelMatrix_list, IK_tr, y=y_train, lamb=parameter, verbose=verbose)       
+        else:
+            raise ValueError('Penalty type not set properly')
 
         # compute performances estimation
         pred = found_kWrap.predict(test_list, eta, y_train, estimator, Ptype=Ptype)
@@ -225,7 +222,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
                 print("\tPrecision: {}".format(precision))
                 print("\tRecall: {}".format(recall))
             
-            """
+            
             if fileToWrite is not None:
                 with lock:
                     with open(fileToWrite, "a") as myfile:
@@ -233,7 +230,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
                         myfile.write("Accuracy: {}\n".format(accuracy))
                         myfile.write("Precision: {}\n".format(precision))
                         myfile.write("Recall: {}\n\n".format(recall))
-            """        
+                    
             
         else:          
             meanErr = np.mean(np.abs(pred*n-y_test))
@@ -246,14 +243,14 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
                 print("\tPred: {}".format(pred))
                 print("\tPred_multiplied: {}".format(pred*n))
             
-            """
+            
             if fileToWrite is not None:
                 with lock:
                     with open(fileToWrite, "a") as myfile:
                         myfile.write(header)
                         myfile.write("Average error: {}\n".format(meanErr))
                         myfile.write("Error variance: {}\n\n".format(varErr))
-            """
+            
 
 # END GENERAL UTIL FUNCTIONS
 

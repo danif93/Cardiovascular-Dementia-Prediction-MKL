@@ -61,10 +61,9 @@ class centeredKernelAlignment:
         if sparsity != 0:
             #sp = Lasso(alpha = sparsity, verbose = verbose, max_iter = maxIter, estimator = centeredKernelAlignment())
             #eta = sp.fit(M, a, y, K_list).coef_
-            eta = Lasso(M, a, sparsity, verbose = verbose)
+            eta = Lasso(M, a, sparsity, verbose=verbose)
             
         else:
-
             if lamb != 0:
                 M -= lamb*np.identity(M.shape[0])
                     
