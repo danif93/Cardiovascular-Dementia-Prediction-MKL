@@ -176,7 +176,7 @@ class mySampler:
                 pred = sel_kWrapp.predict(testSet_list, weights, trainLabel/trLabNorm, estimator, Ptype=self.Ptype)
                 
                 if self.Ptype == "classification":                   
-                    sel_accuracy = accuracy_score(testLabel, pred)
+                    sel_accuracy = ut.balanced_accuracy_score(testLabel, pred)
                     precision = precision_score(testLabel, pred)
                     recall = recall_score(testLabel, pred)
                     bestOverDict.append({"CA":sel_CA, "Accuracy":sel_accuracy, "Precision":precision, "Recall":recall, "config":sel_kWrapp, "eta":weights})

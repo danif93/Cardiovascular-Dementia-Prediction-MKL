@@ -160,6 +160,14 @@ def centering_normalizing(X, except_col = []): #to apply only on the training se
 
 # GENERAL UTIL FUNCTIONS
 
+def balanced_accuracy_score(y_test, y_pred):
+    
+    r1 = recall_score(y_test, y_pred)
+    r2 = recall_score(-1*y_test, -1*y_pred)
+    
+    return (r1+r2)/2
+
+
 # 0.5 x.T P x + q.T x
 # s.t. G x <= h
 #      Ax = b
@@ -223,7 +231,8 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
         pred = found_kWrap.predict(test_list, eta, y_train, estimator, Ptype=Ptype)
         
         if Ptype=='classification':        
-            accuracy = accuracy_score(y_test, pred)
+            #accuracy = accuracy_score(y_test, pred)
+            accuracy = balanced_accuracy_score(y_test, pred)
             precision = precision_score(y_test, pred)
             recall = recall_score(y_test, pred)
             
