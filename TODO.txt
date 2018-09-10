@@ -1,0 +1,7 @@
+0) check in a toy approach if the best config is effectively used
+
+0.5) check performances with training eta
+
+1) rerun only clinical with higher penalties
+
+2) rerun all complete classification

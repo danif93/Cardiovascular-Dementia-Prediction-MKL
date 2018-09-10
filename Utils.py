@@ -192,7 +192,7 @@ def frobeniusInnerProduct(A, B):
     return np.dot(A, B)
 
 
-def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, lamb_list, sparsity, Ptype='classification', lock=None, fileToWrite=None, header='', verbose=False):
+def testConfigurations(estimator, y_train, y_test, config_list, train_list, test_list, kernel_types, lamb_list, sparsity, Ptype='classification', lock=None, fileToWrite=None, header='', normalize = False, verbose=False):
     
     # FIND THE BEST CONFIGURATIONS METRICS
     if Ptype == 'regression':
@@ -205,7 +205,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
     for cl_idx, cl in enumerate(config_list):
         if len(cl) == 1:
             cl = cl[0]
-        found_kWrap = kf.kernelWrapper(train_list, kernel_types, cl, normalize = True)
+        found_kWrap = kf.kernelWrapper(train_list, kernel_types, cl, normalize = normalize)
         # compute the list of kernels generated from the hyperparameter configuration at hand
         kernelMatrix_list = found_kWrap.kernelMatrix(train_list).kernelMatrix_list_
 

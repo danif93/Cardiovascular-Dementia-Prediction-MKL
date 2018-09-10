@@ -15,6 +15,8 @@ class mySampleWrapper:
         self.samplers = []
         self.lamb_list = lamb_list
         self.sparsity = sparsity
+        self.normalize_kernels = normalize_kernels
+
         
         for lamb in lamb_list:
             
