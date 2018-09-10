@@ -62,13 +62,6 @@ class mySampleWrapper:
             self.winning_list_list.append(self.samplers[winner].winning_list[config_idx])
             self.winning_lamb_list.append(self.lamb_list[winner])
         
-        """
-        print("self.winning_sampler_list: {}".format(self.winning_sampler_list))
-        print("self.winning_dict_list: {}".format(self.winning_dict_list))
-        print("self.winning_list_list: {}".format(self.winning_list_list))
-        print("self.winning_lamb_list: {}".format(self.winning_lamb_list))
-        """
-        
         return self.winning_dict_list, self.winning_list_list, self.winning_lamb_list, self.sparsity
     
     
@@ -206,41 +199,6 @@ class mySampler:
                             print(b["config"].printConfig())
                             print("eta vector: {}\n".format(b["eta"]))
                         print("\n\tCompleted in {} minutes".format((time.mktime(time.gmtime())-initTime)/60))
-                            
-            """       
-            if self.merging:
-
-                if verbose: print("\tMearging config of split {} ...".format(split_idx+1))
-
-                best_kernel_dict = {}
-                for kernel_dict_index, elem in enumerate(bestOverDict):
-                    kWrap = elem["config"]
-                    for K_type, param in kWrap.getConfig().items():
-                        try:
-                            best_kernel_dict[K_type].append(param)
-                        except:
-                            best_kernel_dict[K_type] = []
-                            best_kernel_dict[K_type].append(param)
-
-                for key in best_kernel_dict.keys():
-                    best_kernel_dict[key] = np.unique(best_kernel_dict[key])
-
-                if verbose:
-                    print("\tMearging config of split {} completed. New kernel dict:".format(split_idx+1))
-                    for k, v in best_kernel_dict.items():
-                        print("\t\t{} : {}".format(k,v))
-
-                print("\tComputing performances using the merged dictionary")
-                gs = mgs.myGridSearchCV(estimator, best_kernel_dict, fold = valid_fold, sparsity = self.sparsity, lamb = self.lamb, normalize_kernels = self.normalize_kernels).fit(trainSet_list, trainLabel)
-                sel_CA, sel_kWrapp, weights = gs.transform(trainSet_list, verbose= verbose) #it was true
-                pred = sel_kWrapp.predict(testSet_list, weights, trainLabel, estimator)
-                sel_accuracy = accuracy_score(testLabel, pred)
-                precision = precision_score(testLabel, pred)
-                recall = recall_score(testLabel, pred)
-                global_best.append({"CA":sel_CA, "Accuracy":sel_accuracy, "Precision":precision, "Recall":recall, "config":sel_kWrapp, "eta":weights})
-                
-            else:
-            """
             
             global_best.append(bestOverDict)
 
