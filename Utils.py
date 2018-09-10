@@ -250,6 +250,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
                         myfile.write("Precision: {}\n".format(precision))
                         myfile.write("Recall: {}\n".format(recall))
                         myfile.write("Lambda: {}\n".format(lamb))
+                        myfile.write("Config: {}\n".format(cl))
                         myfile.write("Eta: {}\n\n".format(eta))
                     
             
