@@ -62,7 +62,7 @@ class mySampleWrapper:
             self.winning_sampler_list.append(winner)
             self.winning_dict_list.append(self.samplers[winner].winning_dict[config_idx])
             self.winning_list_list.append(self.samplers[winner].winning_list[config_idx])
-            self.winning_lamb_list.append(self.lamb_list[winner])
+            self.winning_lamb_list.append(self.lamb_list[winner])        
         
         return self.winning_dict_list, self.winning_list_list, self.winning_lamb_list, self.sparsity
     
@@ -88,12 +88,11 @@ class mySampleWrapper:
 
 
 class mySampler:
-    def __init__(self, n_splits=3, test_size=.25, Ptype="classification", merging = False, sparsity=0, lamb=0, normalize_kernels=False, centering=False, normalizing=False):
+    def __init__(self, n_splits=3, test_size=.25, Ptype="classification", sparsity=0, lamb=0, normalize_kernels=False, centering=False, normalizing=False):
         if Ptype=="classification":
             self._sampler = StratifiedShuffleSplit(n_splits=n_splits, test_size=test_size)
         else:
             self._sampler = ShuffleSplit(n_splits=n_splits, test_size=test_size)
-        self.merging = merging
         self.sparsity = sparsity
         self.lamb = lamb
         self.normalize_kernels = normalize_kernels
@@ -271,7 +270,7 @@ class mySampler:
         for c_idx, config in enumerate(self.global_best_[0]):
             outcome_dict = {}
             outcome_dict['config'] = {}
-            for res in self.global_best_: #one res per sample
+            for res in self.global_best_: #one res per sampling
                 res = res[c_idx] #correct dictionary
                 for key, value in res.items():
                     if key != 'config':

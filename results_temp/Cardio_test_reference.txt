@@ -1,0 +1,20 @@
+Cardio Linear, Laplacian, Sigmoid, Polynomial, Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.5310207246047953
+Precision: 0.36797752808988765
+Recall: 0.5598290598290598
+Lambda: 1
+Config: [1, 0.2, 0.6, 3, 0.7]
+Eta: [ 1.00000000e+00  4.62545687e-06  0.00000000e+00 -3.01603523e-07
+  3.72067741e-06]
+
+Cardio Linear, Laplacian, Sigmoid, Polynomial, Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.5310207246047953
+Precision: 0.36797752808988765
+Recall: 0.5598290598290598
+Lambda: 1
+Config: [1, 0.6, 0.8, 3, 0.55]
+Eta: [ 1.00000000e+00  3.72244297e-06  0.00000000e+00 -3.01603523e-07
+  3.72120337e-06]
+
