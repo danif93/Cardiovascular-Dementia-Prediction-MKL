@@ -10,7 +10,7 @@ import time
 
 class mySampleWrapper:
     
-    def __init__(self, lamb_list, n_splits=3, test_size=.25, Ptype="classification", merging = False, sparsity=False, normalize_kernels=False, centering=False, normalizing=False):
+    def __init__(self, lamb_list, n_splits=3, test_size=.25, Ptype="classification", sparsity=False, normalize_kernels=False, centering=False, normalizing=False):
 
         self.samplers = []
         self.lamb_list = lamb_list
@@ -21,12 +21,12 @@ class mySampleWrapper:
         for lamb in lamb_list:
             
             if sparsity == False:
-                sampler = mySampler(n_splits, test_size, Ptype, merging, lamb = lamb, normalize_kernels=normalize_kernels, centering=centering, normalizing=normalizing)
+                sampler = mySampler(n_splits, test_size, Ptype, lamb=lamb, normalize_kernels=normalize_kernels, centering=centering, normalizing=normalizing)
                 
                 self.samplers.append(sampler)
                 
             else:
-                sampler = mySampler(n_splits, test_size, Ptype, merging, sparsity=lamb, normalize_kernels=normalize_kernels, centering=centering, normalizing=normalizing)
+                sampler = mySampler(n_splits, test_size, Ptype, sparsity=lamb, normalize_kernels=normalize_kernels, centering=centering, normalizing=normalizing)
                 
                 self.samplers.append(sampler)
                 
