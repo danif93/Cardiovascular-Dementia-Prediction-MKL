@@ -1,7 +1,7 @@
 import numpy as np
 
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import precision_score, recall_score
 from sklearn.preprocessing import normalize
 
 import myGridSearch as mgs
@@ -56,7 +56,7 @@ class mySampleWrapper:
         for config_idx in range(self.num_config):
             ca_list = []
             for sampler in self.samplers:
-                ca_list.append(sampler.outcome_dict_list[config_idx]['CA'][0])
+                ca_list.append(sampler.outcome_dict_list[config_idx]['Accuracy'][0])
             
             winner = np.argmax(ca_list)
             self.winning_sampler_list.append(winner)
@@ -234,14 +234,14 @@ class mySampler:
                     try:
                         for dt_idx, dt in enumerate(ds):
                             try:
-                                voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] += config_dict['CA']
+                                voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] += config_dict['Accuracy']
                             except KeyError:
-                                voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] = config_dict['CA']
+                                voting[dict_idx][ds_names[ds_idx]][k_names[dt_idx]][dt] = config_dict['Accuracy']
                     except:
                         try:
-                            voting[dict_idx][ds_names[0]][k_names[ds_idx]][ds] += config_dict['CA']
+                            voting[dict_idx][ds_names[0]][k_names[ds_idx]][ds] += config_dict['Accuracy']
                         except KeyError:
-                            voting[dict_idx][ds_names[0]][k_names[ds_idx]][ds] = config_dict['CA']
+                            voting[dict_idx][ds_names[0]][k_names[ds_idx]][ds] = config_dict['Accuracy']
                                                        
         # RECOVERING CONFIG FROM voting
         self.winning_dict = []

@@ -44,7 +44,7 @@ class centeredKernelAlignment:
 
         for i, K in enumerate(K_list):
             a[i] = ut.frobeniusInnerProduct(K, IK)
-
+        
         return a
 
     

@@ -2,6 +2,7 @@ import numpy as np
 from KernelFile import kernelWrapper
 import itertools
 from sklearn.model_selection import StratifiedKFold, KFold
+import Utils as ut
 
 
 class myGridSearchCV:
@@ -104,10 +105,11 @@ class myGridSearchCV:
                 #-------------------------
                 # NEW CODE FOR ABSOLUTE VALUE OF CA 
                 score = self.estimator.score(k_eta, IK_val)
-                
                 if score < 0:
-                    score *= -1
-                    #eta = -1*eta
+                    #score *= -1
+                    eta = -1*eta
+                pred = kw_wrap.predict(valid_list, eta, trainLabel, self.estimator, Ptype=self.Ptype)
+                score = ut.balanced_accuracy_score(validLabel, pred)             
                 #----------------------------------
                 
                 performances[fold_idx, kw_idx] = score
