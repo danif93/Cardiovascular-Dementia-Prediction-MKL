@@ -1,0 +1,232 @@
+Cardio Laplacian - Gaussian 
+L2 - Centering - Normalizing
+Accuracy: 0.5400932400932401
+Precision: 0.3669950738916256
+Recall: 0.645021645021645
+Lambda: 0.5
+Config: [[0.6, 0.3], [0.6, 0.6], [0.2, 0.3]]
+Eta: [ 0.12270907 -0.01015547  0.56239851  0.56102175 -0.03526139  0.59376637]
+
+Cardio Laplacian - Gaussian 
+L2 - Centering - Normalizing
+Accuracy: 0.5103896103896104
+Precision: 0.4090909090909091
+Recall: 0.07792207792207792
+Lambda: 0.5
+Config: [[0.9, 0.5], [0.9, 0.5], [0.4, 1]]
+Eta: [0.39056773 0.22219883 0.45042504 0.43167968 0.45384052 0.45042563]
+
+Cardio Linear - Gaussian 
+Centering - Normalizing
+Accuracy: 0.531968031968032
+Precision: 0.3644067796610169
+Recall: 0.5584415584415584
+Lambda: 0.9
+Config: [[1, 0.3], [1, 0.6], [1, 0.6]]
+Eta: [2.00813065e-01 2.07695273e-04 9.79629513e-01 2.07693376e-04
+ 1.18889313e-07 2.07693048e-04]
+
+Cardio Linear - Gaussian 
+Centering - Normalizing
+Accuracy: 0.531968031968032
+Precision: 0.3644067796610169
+Recall: 0.5584415584415584
+Lambda: 0.9
+Config: [[1, 1], [1, 1], [1, 0.5]]
+Eta: [2.00813065e-01 2.07695273e-04 9.79629513e-01 2.07693049e-04
+ 1.18889313e-07 2.07693049e-04]
+
+Cardio Polynomial - Gaussian 
+Centering - Normalizing
+Accuracy: 0.5241758241758242
+Precision: 0.3639705882352941
+Recall: 0.42857142857142855
+Lambda: 0.7
+Config: [[7, 0.6], [2, 0.6], [2, 0.3]]
+Eta: [1.00000000e+00 1.07339539e-27 3.16102681e-27 1.07287318e-27
+ 2.74667220e-14 1.07287343e-27]
+
+Cardio Polynomial - Gaussian 
+Centering - Normalizing
+Accuracy: 0.5064602064602065
+Precision: 0.6666666666666666
+Recall: 0.017316017316017316
+Lambda: 1.3
+Config: [[3, 0.5], [3, 1], [3, 0.5]]
+Eta: [1.51183539e-15 0.00000000e+00 2.43337789e-24 6.07395617e-25
+ 1.00000000e+00 6.07395617e-25]
+
+Cardio Sigmoid - Gaussian 
+Centering - Normalizing
+Accuracy: 0.49400599400599404
+Precision: 0.3
+Recall: 0.06493506493506493
+Lambda: 0.9
+Config: [[0.2, 0.6], [0.2, 0.3], [0.6, 0.3]]
+Eta: [ 0.00000000e+00  5.60066339e-01 -1.58254992e-08  4.87663890e-01
+  0.00000000e+00  6.69708613e-01]
+
+Cardio Sigmoid - Gaussian 
+Centering - Normalizing
+Accuracy: 0.5031302031302032
+Precision: 0.4166666666666667
+Recall: 0.021645021645021644
+Lambda: 0.9
+Config: [[0.4, 1], [0.4, 1], [0.9, 0.5]]
+Eta: [0.00000000e+00 5.42588917e-01 4.06184728e-12 5.93840580e-01
+ 0.00000000e+00 5.94096485e-01]
+
+Cardio Laplacian - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.4935730935730936
+Precision: 0.3146067415730337
+Recall: 0.12121212121212122
+Lambda: 0.7
+Config: [[0.6, 0.3], [0.6, 0.3], [0.6, 0.3]]
+Eta: [0.17254963 0.12291631 0.53381351 0.26180747 0.535485   0.56113635]
+
+Cardio Laplacian - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.5038961038961038
+Precision: 0.36585365853658536
+Recall: 0.06493506493506493
+Lambda: 0.9
+Config: [[0.9, 0.5], [0.9, 0.5], [0.4, 1]]
+Eta: [0.40045864 0.31117081 0.43306393 0.4224934  0.43498956 0.43306426]
+
+Cardio Linear - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.531968031968032
+Precision: 0.3644067796610169
+Recall: 0.5584415584415584
+Lambda: 0.5
+Config: [[1, 0.6], [1, 0.6], [1, 0.6]]
+Eta: [2.00813065e-01 2.07698178e-04 9.79629513e-01 2.07693376e-04
+ 1.18889313e-07 2.07693048e-04]
+
+Cardio Linear - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.531968031968032
+Precision: 0.3644067796610169
+Recall: 0.5584415584415584
+Lambda: 0.5
+Config: [[1, 1], [1, 0.5], [1, 1]]
+Eta: [2.00813065e-01 2.07695273e-04 9.79629513e-01 2.07695078e-04
+ 1.18889313e-07 2.07693048e-04]
+
+Cardio Polynomial - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.5064602064602065
+Precision: 0.6666666666666666
+Recall: 0.017316017316017316
+Lambda: 0.9
+Config: [[2, 0.6], [2, 0.6], [2, 0.6]]
+Eta: [1.54249776e-11 0.00000000e+00 4.25143384e-17 3.32353903e-17
+ 1.00000000e+00 3.32353901e-17]
+
+Cardio Polynomial - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.5064602064602065
+Precision: 0.6666666666666666
+Recall: 0.017316017316017316
+Lambda: 1.3
+Config: [[3, 0.5], [3, 1], [3, 1]]
+Eta: [1.51183539e-15 0.00000000e+00 2.43337789e-24 6.07395617e-25
+ 1.00000000e+00 6.07395617e-25]
+
+Cardio Sigmoid - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.5084249084249084
+Precision: 0.44
+Recall: 0.047619047619047616
+Lambda: 0.9
+Config: [[0.2, 0.6], [0.6, 0.6], [0.6, 0.3]]
+Eta: [ 0.00000000e+00  5.06205586e-01 -3.18896467e-16  6.01001536e-01
+  7.47160421e-30  6.18508737e-01]
+
+Cardio Sigmoid - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.5031302031302032
+Precision: 0.4166666666666667
+Recall: 0.021645021645021644
+Lambda: 0.9
+Config: [[0.9, 1], [0.4, 1], [0.9, 0.5]]
+Eta: [0.00000000e+00 5.42588917e-01 4.06184728e-12 5.93840580e-01
+ 0.00000000e+00 5.94096485e-01]
+
+Cardio Laplacian - Gaussian 
+Centering - Normalizing
+Accuracy: 0.49327339327339326
+Precision: 0.33170731707317075
+Recall: 0.5887445887445888
+Lambda: 0.9
+Config: [[0.2, 0.3], [0.2, 0.3], [0.2, 0.6]]
+Eta: [-0.41197955 -0.40752755 -0.40750925 -0.4074849  -0.40748811 -0.40747988]
+
+Cardio Laplacian - Gaussian 
+Centering - Normalizing
+Accuracy: 0.49000999000999
+Precision: 0.33070866141732286
+Recall: 0.7272727272727273
+Lambda: 1.3
+Config: [[0.4, 0.5], [0.4, 0.5], [0.4, 0.5]]
+Eta: [-0.40834302 -0.40823479 -0.40822858 -0.40822793 -0.40822769 -0.40822773]
+
+Cardio Linear - Gaussian 
+Centering - Normalizing
+Accuracy: 0.5075258075258076
+Precision: 0.625
+Recall: 0.021645021645021644
+Lambda: 1.3
+Config: [[1, 0.3], [1, 0.6], [1, 0.3]]
+Eta: [1.23684559e-08 1.15847706e-11 1.24530083e-09 1.15849839e-11
+ 1.00000000e+00 1.15849842e-11]
+
+Cardio Linear - Gaussian 
+Centering - Normalizing
+Accuracy: 0.5075258075258076
+Precision: 0.625
+Recall: 0.021645021645021644
+Lambda: 1.3
+Config: [[1, 1], [1, 0.5], [1, 0.5]]
+Eta: [1.23684559e-08 1.15849860e-11 1.24530083e-09 1.15849842e-11
+ 1.00000000e+00 1.15849838e-11]
+
+Cardio Polynomial - Gaussian 
+Centering - Normalizing
+Accuracy: 0.5064602064602065
+Precision: 0.6666666666666666
+Recall: 0.017316017316017316
+Lambda: 1.3
+Config: [[2, 0.3], [2, 0.3], [2, 0.6]]
+Eta: [1.54249776e-11 3.32347681e-17 4.25143384e-17 3.32354525e-17
+ 1.00000000e+00 3.32353901e-17]
+
+Cardio Polynomial - Gaussian 
+Centering - Normalizing
+Accuracy: 0.5064602064602065
+Precision: 0.6666666666666666
+Recall: 0.017316017316017316
+Lambda: 0.9
+Config: [[5, 0.5], [3, 0.5], [3, 0.5]]
+Eta: [2.55382072e-08 6.07395209e-25 2.43337790e-24 6.07395639e-25
+ 1.00000000e+00 6.07395618e-25]
+
+Cardio Sigmoid - Gaussian 
+Centering - Normalizing
+Accuracy: 0.5084915084915085
+Precision: 0.34102141680395387
+Recall: 0.8961038961038961
+Lambda: 0.7
+Config: [[0.2, 0.3], [0.2, 0.3], [0.6, 0.6]]
+Eta: [ 0.         -0.57737539  0.         -0.57734182  0.         -0.57733359]
+
+Cardio Sigmoid - Gaussian 
+Centering - Normalizing
+Accuracy: 0.4938061938061938
+Precision: 0.33384146341463417
+Recall: 0.948051948051948
+Lambda: 0.5
+Config: [[0.9, 0.5], [0.4, 0.5], [0.4, 1]]
+Eta: [ 0.         -0.57735655  0.         -0.57734721  0.         -0.57734704]
+
