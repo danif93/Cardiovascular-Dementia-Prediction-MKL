@@ -30,8 +30,8 @@ class myGridSearchCV:
         
         
         #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
-        if self.Ptype == 'regression':
-            y /= np.linalg.norm(y)
+        #if self.Ptype == 'regression':
+        #    y /= np.linalg.norm(y)
         
         
         self.IK_ = np.outer(y, y)
@@ -69,9 +69,9 @@ class myGridSearchCV:
             trainLabel = self._y[train_index]
             validLabel = self._y[valid_index]
             
-            if self.Ptype == 'regression':
-                trainLabel /= np.linalg.norm(trainLabel)
-                validLabel /= np.linalg.norm(validLabel)
+            #if self.Ptype == 'regression':
+            #    trainLabel /= np.linalg.norm(trainLabel)
+            #    validLabel /= np.linalg.norm(validLabel)
             
             
             IK_tr = np.outer(trainLabel, trainLabel)
