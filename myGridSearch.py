@@ -30,8 +30,8 @@ class myGridSearchCV:
         
         
         #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)
-        #if self.Ptype == 'regression':
-        #    y /= np.linalg.norm(y)
+        if self.Ptype == 'regression':
+            y /= np.linalg.norm(y)
         
         
         self.IK_ = np.outer(y, y)
@@ -68,12 +68,11 @@ class myGridSearchCV:
             #NEW CODE: managing labels for a correct regression (normalizing labels such that E[y^2] = 1)           
             trainLabel = self._y[train_index]
             validLabel = self._y[valid_index]
-            
-            #if self.Ptype == 'regression':
-            #    trainLabel /= np.linalg.norm(trainLabel)
-            #    validLabel /= np.linalg.norm(validLabel)
-            
-            
+                        
+            if self.Ptype == 'regression':
+                trainLabel /= np.linalg.norm(trainLabel)
+                validLabel /= np.linalg.norm(validLabel)
+                        
             IK_tr = np.outer(trainLabel, trainLabel)
             IK_val = np.outer(validLabel, trainLabel)           
             #-------------------------------
@@ -106,10 +105,12 @@ class myGridSearchCV:
                 # NEW CODE FOR ABSOLUTE VALUE OF CA 
                 score = self.estimator.score(k_eta, IK_val)
                 if score < 0:
-                    #score *= -1
-                    eta = -1*eta
-                pred = kw_wrap.predict(valid_list, eta, trainLabel, self.estimator, Ptype=self.Ptype)
-                score = ut.balanced_accuracy_score(validLabel, pred)             
+                    score *= -1
+                    #eta = -1*eta
+                #pred = kw_wrap.predict(valid_list, eta, trainLabel, self.estimator, Ptype=self.Ptype)
+                #for index, p in enumerate(pred):
+                #    pred[index] = int(p)
+                #score = ut.balanced_accuracy_score(validLabel, pred)             
                 #----------------------------------
                 
                 performances[fold_idx, kw_idx] = score

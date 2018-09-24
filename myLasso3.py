@@ -21,7 +21,11 @@ def Lasso(M, a, c, tol=0.001, max_iter = 500, verbose = False):
         max_iter -= 1
         
         eta_new = soft_thresholding(eta + c * (np.dot(M, eta) - a), c) #it was a maximization problem, then + gradient
-        eta_new /= np.linalg.norm(eta_new)
+        norm =  np.linalg.norm(eta_new)
+        if norm == 0:
+            return eta
+        
+        eta_new /= norm
         
         delta = np.linalg.norm(eta_new - eta)
         eta = eta_new
