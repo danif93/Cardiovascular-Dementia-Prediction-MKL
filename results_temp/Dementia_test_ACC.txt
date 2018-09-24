@@ -151,3 +151,151 @@ Config: [[0.4, 1], [0.9, 0.5], [0.4, 0.5]]
 Eta: [-1.44656269e-10  5.64767156e-01 -1.44656274e-10  5.82632563e-01
  -1.44656275e-10  5.84446196e-01]
 
+Dementia Laplacian - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.5039941902687001
+Precision: 0.17543859649122806
+Recall: 0.5882352941176471
+Lambda: 0.5
+Config: [[0.2, 0.3], [0.2, 0.3], [0.6, 0.3]]
+Eta: [-0.41069676 -0.40782866 -0.40774127 -0.40773875 -0.40773772 -0.40773777]
+
+Dementia Laplacian - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.504720406681191
+Precision: 0.17495987158908508
+Recall: 0.9159663865546218
+Lambda: 0.5
+Config: [[0.9, 0.5], [0.4, 0.5], [0.4, 0.5]]
+Eta: [-0.40824764 -0.40825567 -0.40824677 -0.40824662 -0.40824653 -0.40824651]
+
+Dementia Linear - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.5162361240792613
+Precision: 0.24444444444444444
+Recall: 0.09243697478991597
+Lambda: 0.7
+Config: [[1, 0.6], [1, 0.3], [1, 0.3]]
+Eta: [1.24630911e-08 1.14686395e-11 1.44921845e-09 1.14686653e-11
+ 1.00000000e+00 1.14686317e-11]
+
+Dementia Linear - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.5162361240792613
+Precision: 0.24444444444444444
+Recall: 0.09243697478991597
+Lambda: 0.7
+Config: [[1, 0.5], [1, 0.5], [1, 0.5]]
+Eta: [1.24630911e-08 1.14686489e-11 1.44921845e-09 1.14686319e-11
+ 1.00000000e+00 1.14686314e-11]
+
+Dementia Polynomial - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.5048760244838676
+Precision: 0.3333333333333333
+Recall: 0.01680672268907563
+Lambda: 1.3
+Config: [[2, 0.3], [2, 0.3], [2, 0.6]]
+Eta: [1.46188271e-11 3.36556137e-17 5.10571188e-17 3.36555212e-17
+ 1.00000000e+00 3.36554360e-17]
+
+Dementia Polynomial - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.5048760244838676
+Precision: 0.3333333333333333
+Recall: 0.01680672268907563
+Lambda: 1.3
+Config: [[5, 0.5], [3, 0.5], [3, 1]]
+Eta: [2.34781666e-08 6.28882273e-25 3.03611138e-24 6.28881480e-25
+ 1.00000000e+00 6.28881457e-25]
+
+Dementia Sigmoid - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.5399937752878929
+Precision: 0.18696397941680962
+Recall: 0.9159663865546218
+Lambda: 0.5
+Config: [[0.6, 0.3], [0.2, 0.3], [0.2, 0.3]]
+Eta: [ 0.         -0.57743247  0.         -0.57730961  0.         -0.57730872]
+
+Dementia Sigmoid - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.5093889407614898
+Precision: 0.1763779527559055
+Recall: 0.9411764705882353
+Lambda: 0.9
+Config: [[0.9, 0.5], [0.4, 0.5], [0.9, 1]]
+Eta: [ 0.         -0.57736162  0.         -0.57734464  0.         -0.57734455]
+
+Dementia Laplacian - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.5266106442577031
+Precision: 0.1891891891891892
+Recall: 0.5294117647058824
+Lambda: 0.5
+Config: [[0.6, 0.6], [0.2, 0.3], [0.2, 0.3]]
+Eta: [-0.40826093 -0.40825669 -0.40822485 -0.40825388 -0.40824019 -0.40825321]
+
+Dementia Laplacian - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.5096483037659508
+Precision: 0.1787709497206704
+Recall: 0.5378151260504201
+Lambda: 0.9
+Config: [[0.9, 1], [0.4, 0.5], [0.9, 1]]
+Eta: [-0.40824893 -0.40824829 -0.40824826 -0.4082481  -0.40824808 -0.40824808]
+
+Dementia Linear - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.5116713352007469
+Precision: 0.17962466487935658
+Recall: 0.5630252100840336
+Lambda: 0.7
+Config: [[1, 0.3], [1, 0.3], [1, 0.3]]
+Eta: [-0.00124431 -0.57739843 -0.00596773 -0.57730897 -0.00180356 -0.5773084 ]
+
+Dementia Linear - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.4845419649341218
+Precision: 0.1658291457286432
+Recall: 0.5546218487394958
+Lambda: 0.7
+Config: [[1, 0.5], [1, 1], [1, 1]]
+Eta: [-0.00124432 -0.57734853 -0.00596691 -0.57733364 -0.00180361 -0.57733364]
+
+Dementia Polynomial - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.5125531694159144
+Precision: 0.18010752688172044
+Recall: 0.5630252100840336
+Lambda: 0.5
+Config: [[7, 0.3], [2, 0.3], [2, 0.6]]
+Eta: [-0.00755566 -0.5773824  -0.00596779 -0.57729294 -0.00183122 -0.57729227]
+
+Dementia Polynomial - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.4886917730054985
+Precision: 0.1675531914893617
+Recall: 0.5294117647058824
+Lambda: 0.9
+Config: [[5, 1], [3, 0.5], [3, 0.5]]
+Eta: [-0.00596628 -0.57731106 -0.00983478 -0.57731071 -0.00207408 -0.57731072]
+
+Dementia Sigmoid - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.5107895009855794
+Precision: 0.17914438502673796
+Recall: 0.5630252100840336
+Lambda: 0.9
+Config: [[0.6, 0.3], [0.2, 0.3], [0.2, 0.3]]
+Eta: [ 0.         -0.57741009  0.         -0.57732058  0.         -0.57732013]
+
+Dementia Sigmoid - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.48257080610021785
+Precision: 0.16502463054187191
+Recall: 0.5630252100840336
+Lambda: 0.5
+Config: [[0.9, 1], [0.4, 1], [0.4, 1]]
+Eta: [ 0.         -0.57735046  0.         -0.57735034  0.         -0.57735   ]
+
