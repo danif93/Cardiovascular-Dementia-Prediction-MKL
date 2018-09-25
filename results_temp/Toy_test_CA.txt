@@ -267,3 +267,272 @@ Lambda: 0.9
 Config: [[0.9, 1], [0.9, 1], [0.4, 1]]
 Eta: [ 0.28111324  0.52627351  0.24474005 -0.31452905  0.6952645   0.04233911]
 
+Toy Linear - Polynomial - Gaussian
+L1 - Centering - Normalizing
+Accuracy: 0.683854907539118
+Precision: 0.6101694915254238
+Recall: 0.972972972972973
+Lambda: 0.7
+Config: [[0.5, 3, 0.1], [0.5, 2, 0.1], [0.5, 7, 0.7]]
+Eta: [1.88657432e-06 2.15595460e-06 7.59925916e-08 2.23224560e-06
+ 8.29827775e-07 7.68565481e-08 9.27176055e-06 1.00000000e+00
+ 7.62061047e-08]
+
+Toy Linear - Polynomial - Gaussian
+L1 - Centering - Normalizing
+Accuracy: 0.6447368421052632
+Precision: 0.578125
+Recall: 1.0
+Lambda: 0.7
+Config: [[0.2, 4, 0.7], [0.2, 4, 1], [0.2, 8, 0.7]]
+Eta: [1.40492139e-07 5.63483459e-07 6.21945350e-09 1.73209026e-07
+ 9.01795873e-07 6.21644379e-09 6.95546741e-07 1.00000000e+00
+ 6.21862774e-09]
+
+Toy Laplacian - Polynomial - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.22510668563300143
+Precision: 0.13793103448275862
+Recall: 0.10810810810810811
+Lambda: 0.5
+Config: [[0.1, 2, 0.2], [0.1, 2, 0.2], [0.1, 3, 0.3]]
+Eta: [-0.00112223 -0.0159645  -0.00118696 -0.00111282 -0.0182036  -0.00116386
+ -0.00246967 -0.99970049 -0.0011555 ]
+
+Toy Laplacian - Polynomial - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.6447368421052632
+Precision: 0.578125
+Recall: 1.0
+Lambda: 0.5
+Config: [[0.5, 5, 0.7], [0.7, 5, 0.5], [0.7, 8, 0.5]]
+Eta: [6.21197027e-09 2.00319737e-06 6.21945391e-09 6.21662022e-09
+ 3.49438848e-06 6.21355071e-09 6.22082156e-09 1.00000000e+00
+ 6.22318027e-09]
+
+Toy Sigmoid - Polynomial - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.8015647226173542
+Precision: 0.7391304347826086
+Recall: 0.918918918918919
+Lambda: 0.9
+Config: [[0.1, 3, 0.2], [0.1, 2, 0.2], [0.3, 3, 0.3]]
+Eta: [0.00191492 0.04754878 0.00118808 0.00174339 0.01792768 0.00115688
+ 0.01167807 0.99863434 0.00115158]
+
+Toy Sigmoid - Polynomial - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.6447368421052632
+Precision: 0.578125
+Recall: 1.0
+Lambda: 0.9
+Config: [[0.7, 5, 0.5], [0.5, 5, 0.5], [0.5, 8, 0.7]]
+Eta: [7.45884476e-09 2.00319737e-06 6.22315595e-09 9.05148554e-09
+ 3.49438848e-06 6.21355071e-09 9.08923739e-09 1.00000000e+00
+ 6.21862815e-09]
+
+Toy Laplacian - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.22688477951635846
+Precision: 0.23076923076923078
+Recall: 0.24324324324324326
+Lambda: 0.5
+Config: [[0.2, 0.3], [0.2, 0.3], [0.2, 0.6]]
+Eta: [-0.42004624 -0.38189648 -0.39799708 -0.37985252 -0.49482523 -0.36079721]
+
+Toy Laplacian - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.21266002844950213
+Precision: 0.17647058823529413
+Recall: 0.16216216216216217
+Lambda: 0.5
+Config: [[0.9, 0.5], [0.9, 0.5], [0.4, 0.5]]
+Eta: [-0.40358766 -0.40518064 -0.40374107 -0.40691037 -0.42380784 -0.40589366]
+
+Toy Linear - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.8012091038406828
+Precision: 0.75
+Recall: 0.8918918918918919
+Lambda: 0.9
+Config: [[1, 0.3], [1, 0.3], [1, 0.6]]
+Eta: [0.16835455 0.00145725 0.24212566 0.00142625 0.95552398 0.00129462]
+
+Toy Linear - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.19879089615931722
+Precision: 0.12903225806451613
+Recall: 0.10810810810810811
+Lambda: 0.9
+Config: [[1, 1], [1, 1], [1, 0.5]]
+Eta: [-0.17567374 -0.00131541 -0.24127738 -0.00131298 -0.95442061 -0.00134176]
+
+Toy Polynomial - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.7884068278805121
+Precision: 0.723404255319149
+Recall: 0.918918918918919
+Lambda: 0.7
+Config: [[2, 0.3], [2, 0.3], [2, 0.6]]
+Eta: [0.11555124 0.00647794 0.1735527  0.00646093 0.97796021 0.00612349]
+
+Toy Polynomial - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.2375533428165007
+Precision: 0.08333333333333333
+Recall: 0.05405405405405406
+Lambda: 0.7
+Config: [[3, 0.5], [3, 1], [5, 1]]
+Eta: [-3.75435572e-04 -1.13833886e-05 -5.08883770e-04 -1.13471859e-05
+ -9.99999800e-01 -1.13500357e-05]
+
+Toy Sigmoid - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.7471550497866287
+Precision: 0.725
+Recall: 0.7837837837837838
+Lambda: 1.3
+Config: [[0.2, 0.3], [0.2, 0.3], [0.6, 0.6]]
+Eta: [-0.00627001 -0.00105193  0.02537505 -0.00172785  0.99965525 -0.00144   ]
+
+Toy Sigmoid - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.21266002844950213
+Precision: 0.17647058823529413
+Recall: 0.16216216216216217
+Lambda: 1.3
+Config: [[0.4, 0.5], [0.4, 0.5], [0.9, 1]]
+Eta: [-0.24839816 -0.00998564 -0.23617919 -0.00982873 -0.93927099 -0.00956244]
+
+Toy Linear - Polynomial - Gaussian
+L1 - Centering - K_Normalizing
+Accuracy: 0.21301564722617355
+Precision: 0.19444444444444445
+Recall: 0.1891891891891892
+Lambda: 1.3
+Config: [[0.5, 2, 0.1], [0.5, 2, 0.1], [0.5, 7, 0.7]]
+Eta: [-0.37058161 -0.24943467 -0.2594785  -0.25208132 -0.18659381 -0.26192919
+ -0.58100047 -0.37326849 -0.29876825]
+
+Toy Linear - Polynomial - Gaussian
+L1 - Centering - K_Normalizing
+Accuracy: 0.18634423897581792
+Precision: 0.16666666666666666
+Recall: 0.16216216216216217
+Lambda: 1.3
+Config: [[0.2, 4, 0.7], [0.2, 4, 0.7], [0.2, 8, 1]]
+Eta: [-0.32427578 -0.28623548 -0.33974976 -0.21842782 -0.21661869 -0.34107366
+ -0.51316431 -0.32794933 -0.34004498]
+
+Toy Laplacian - Polynomial - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.19985775248933144
+Precision: 0.1891891891891892
+Recall: 0.1891891891891892
+Lambda: 0.7
+Config: [[0.1, 3, 0.2], [0.1, 3, 0.2], [0.1, 2, 0.3]]
+Eta: [-0.12568705 -0.30769919 -0.38673789 -0.11913366 -0.23792562 -0.40911589
+ -0.26866759 -0.49725049 -0.42701312]
+
+Toy Laplacian - Polynomial - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.18705547652916074
+Precision: 0.2
+Recall: 0.21621621621621623
+Lambda: 0.7
+Config: [[0.5, 5, 0.5], [0.5, 5, 0.5], [0.5, 8, 0.7]]
+Eta: [-0.37155756 -0.24552941 -0.36868609 -0.37237411 -0.19889083 -0.37145426
+ -0.37655637 -0.2656827  -0.37033844]
+
+Toy Sigmoid - Polynomial - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.18669985775248932
+Precision: 0.18421052631578946
+Recall: 0.1891891891891892
+Lambda: 0.7
+Config: [[0.3, 3, 0.2], [0.1, 2, 0.2], [0.1, 3, 0.3]]
+Eta: [-0.23529615 -0.31386862 -0.37537424 -0.08980904 -0.18696074 -0.38975639
+ -0.2504618  -0.52994093 -0.40831099]
+
+Toy Sigmoid - Polynomial - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.19985775248933144
+Precision: 0.1891891891891892
+Recall: 0.1891891891891892
+Lambda: 0.7
+Config: [[0.7, 5, 0.5], [0.5, 5, 0.5], [0.7, 8, 0.7]]
+Eta: [-0.23200214 -0.31722904 -0.38996095 -0.17831457 -0.24641615 -0.39280036
+ -0.41313421 -0.35175413 -0.39019383]
+
+Toy Laplacian - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.16038406827880514
+Precision: 0.175
+Recall: 0.1891891891891892
+Lambda: 0.9
+Config: [[0.2, 0.3], [0.2, 0.3], [0.2, 0.6]]
+Eta: [-0.29653544 -0.43703155 -0.3118835  -0.45028799 -0.47007708 -0.44728862]
+
+Toy Laplacian - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.17354196301564723
+Precision: 0.1794871794871795
+Recall: 0.1891891891891892
+Lambda: 1.3
+Config: [[0.4, 0.5], [0.4, 0.5], [0.4, 1]]
+Eta: [-0.40205422 -0.40447041 -0.4058584  -0.40770177 -0.42281892 -0.40624928]
+
+Toy Linear - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.19985775248933144
+Precision: 0.1891891891891892
+Recall: 0.1891891891891892
+Lambda: 0.5
+Config: [[1, 0.3], [1, 0.3], [1, 0.6]]
+Eta: [-0.36965027 -0.38079304 -0.24374321 -0.38837328 -0.60270621 -0.38059953]
+
+Toy Linear - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.19985775248933144
+Precision: 0.1891891891891892
+Recall: 0.1891891891891892
+Lambda: 0.5
+Config: [[1, 0.5], [1, 0.5], [1, 1]]
+Eta: [-0.36275413 -0.38690816 -0.23944593 -0.38975769 -0.60006801 -0.38650289]
+
+Toy Polynomial - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.18634423897581792
+Precision: 0.16666666666666666
+Recall: 0.16216216216216217
+Lambda: 0.9
+Config: [[7, 0.3], [2, 0.3], [2, 0.6]]
+Eta: [-0.35642598 -0.43764525 -0.18700148 -0.44744172 -0.50082496 -0.44207224]
+
+Toy Polynomial - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.17318634423897583
+Precision: 0.16216216216216217
+Recall: 0.16216216216216217
+Lambda: 0.9
+Config: [[3, 0.5], [3, 0.5], [5, 0.5]]
+Eta: [-0.30368547 -0.451785   -0.23422131 -0.45553655 -0.48352831 -0.45551362]
+
+Toy Sigmoid - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.21301564722617355
+Precision: 0.19444444444444445
+Recall: 0.1891891891891892
+Lambda: 0.7
+Config: [[0.2, 0.3], [0.2, 0.3], [0.6, 0.3]]
+Eta: [-0.20578264 -0.45538205 -0.15456698 -0.46846198 -0.52250131 -0.48365845]
+
+Toy Sigmoid - Gaussian 
+L1 - Centering - K_Normalizing
+Accuracy: 0.19950213371266
+Precision: 0.17142857142857143
+Recall: 0.16216216216216217
+Lambda: 0.7
+Config: [[0.4, 0.5], [0.4, 0.5], [0.9, 0.5]]
+Eta: [-0.25380824 -0.45492943 -0.19864625 -0.45898071 -0.51737398 -0.45915261]
+
