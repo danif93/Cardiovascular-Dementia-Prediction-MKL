@@ -200,7 +200,7 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
         y_train /= n
         
     IK_tr = np.outer(y_train, y_train)
-    #IK_test = np.outer(y_test, y_test)
+    IK_test = np.outer(y_test, y_train)
 
     for cl_idx, cl in enumerate(config_list):
         if len(cl) == 1:
@@ -217,6 +217,17 @@ def testConfigurations(estimator, y_train, y_test, config_list, train_list, test
             eta = estimator.computeEta(kernelMatrix_list, IK_tr, y = y_train, sparsity = lamb, verbose = verbose)
         else:
             eta = estimator.computeEta(kernelMatrix_list, IK_tr, y = y_train, lamb = lamb, verbose = verbose)
+        
+        #----------------------------------------------
+        #NEW CODE, FIXING THE POSSIBILITY TO HAVE NEGATIVE CA
+        k_eta = np.zeros(kernelMatrix_list[0].shape)
+        for eta_i, Ki in zip(eta, kernelMatrix_list):
+            k_eta += eta_i * Ki
+
+        score = estimator.score(k_eta, IK_test)
+        if score < 0:
+            score *= -1
+            eta = -1*eta
         #---------------------------------------------
 
         # compute k_eta (approximation) for the validation set
