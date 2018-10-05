@@ -1,0 +1,36 @@
+Dementia Polynomial - Gaussian 
+L2 - Centering - Normalizing
+Accuracy: 0.5012968150223052
+Precision: 0.17437722419928825
+Recall: 0.4117647058823529
+Lambda: 0.3
+Config: [6, 0.2]
+Eta: [1.00000000e+00 5.08347264e-24]
+
+Dementia Polynomial - Gaussian 
+L2 - Centering - K Normalizing
+Accuracy: 0.6685859528996784
+Precision: 0.26358695652173914
+Recall: 0.8151260504201681
+Lambda: 0.7
+Config: [3, 0.5]
+Eta: [ 0.99996248 -0.00866203]
+
+Dementia Polynomial - Gaussian 
+L1 - Centering - Normalizing
+Accuracy: 0.501763668430335
+Precision: 0.17465753424657535
+Recall: 0.42857142857142855
+Lambda: 0.5
+Config: [5, 0.2]
+Eta: [1.00000000e+00 2.29587374e-20]
+
+Dementia Polynomial - Gaussian 
+L1 - Centering - K Normalizing
+Accuracy: 0.5359995850191929
+Precision: 0.21195652173913043
+Recall: 0.3277310924369748
+Lambda: 1
+Config: [2, 0.5]
+Eta: [0.0060333 0.9999818]
+
